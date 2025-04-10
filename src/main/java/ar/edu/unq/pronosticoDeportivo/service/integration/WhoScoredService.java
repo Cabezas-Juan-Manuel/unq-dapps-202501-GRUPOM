@@ -1,0 +1,210 @@
+package ar.edu.unq.pronosticoDeportivo.service.integration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.io.IOException;
+
+import java.time.Duration;
+
+public class WhoScoredService {
+
+    private static final Logger LOGGER = Logger.getLogger(WhoScoredService.class.getName());
+
+    private static WebDriver configureWebDriver() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("window-size=1920,1080");
+        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        return new ChromeDriver(options);
+    }
+
+    private static class Arguments {
+        String text;
+        String searchBy;
+        String tableBy;
+
+        public Arguments(String text, String searchBy, String tableBy) {
+            this.text = text;
+            this.searchBy = searchBy;
+            this.tableBy = tableBy;
+        }
+    }
+
+    private static Arguments parseArguments(String[] args) {
+        if (args.length != 3) {
+            System.err.println("Usage: java WhoScoredScraper <text> <searchBy (player|team)> <tableBy (team-stats|team-players|player-stats|player-latest-matches)>");
+            System.exit(1);
+        }
+        String text = args[0];
+        String searchBy = args[1];
+        String tableBy = args[2];
+        if (!searchBy.equals("player") && !searchBy.equals("team")) {
+            System.err.println("Invalid value for searchBy. Must be 'player' or 'team'.");
+            System.exit(1);
+        }
+        if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
+                !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
+            System.err.println("Invalid value for tableBy.");
+            System.exit(1);
+        }
+        return new Arguments(text, searchBy, tableBy);
+    }
+
+    private static Map<String, String> generateDictionaryNameId() {
+        Map<String, String> dictionary = new HashMap<>();
+        dictionary.put("team-stats", "top-team-stats-summary-grid");
+        dictionary.put("team-players", "top-player-stats-summary-grid");
+        dictionary.put("player-stats", "top-player-stats-summary-grid");
+        dictionary.put("player-latest-matches", "player-matches-table");
+        return dictionary;
+    }
+
+    private static Element getTableByTitle(Document doc, String title) {
+        Elements h2s = doc.select("h2");
+        for (Element h2 : h2s) {
+            if (h2.text().toLowerCase().contains(title.toLowerCase())) {
+                return h2.nextElementSibling();
+            }
+        }
+        return null;
+    }
+
+    private static Element getTableById(Document doc, String id) {
+        Element table = doc.selectFirst("[id='" + id + "']");
+        if (table == null) {
+            LOGGER.log(Level.SEVERE, "Stadistics table not found for {0}.", id);
+            return null;
+        }
+        return table;
+    }
+
+    private static List<Map<String, String>> getTableByIdContent(Element table) {
+        Elements tableChildren = table.children();
+
+        if (tableChildren.size() < 2) {
+            LOGGER.log(Level.WARNING, "Warning: La tabla no tiene al menos dos hijos directos (head y body).");
+            return null;
+        }
+
+        Element thead = tableChildren.get(0);
+        Element tbody = tableChildren.get(1);
+
+        Elements headerElements = thead.select("tr:first-child > th");
+        List<String> headers = new ArrayList<>();
+        for (Element th : headerElements) {
+            headers.add(th.text().trim());
+        }
+
+        Elements rowElements = tbody.select("tr");
+        return zipTableHeadWithBody(headers, rowElements);
+    }
+
+    private static List<Map<String, String>> zipTableHeadWithBody(List<String> headers, Elements rows) {
+        List<Map<String, String>> data = new ArrayList<>();
+        for (Element row : rows) {
+            List<String> values = getValuesFromRow(row);
+            if (headers.size() == values.size()) {
+                Map<String, String> rowDict = new HashMap<>();
+                for (int i = 0; i < headers.size(); i++) {
+                    rowDict.put(headers.get(i), values.get(i));
+                }
+                data.add(rowDict);
+            } else {
+                LOGGER.log(Level.WARNING, "Warning: Number of headers and values in a row do not match.");
+            }
+        }
+        return data;
+    }
+
+    private static List<String> getValuesFromRow(Element row) {
+        List<String> extractedTexts = new ArrayList<>();
+        Elements items = row.children();
+        for (Element item : items) {
+            String text = item.text().trim();
+            if (!text.isEmpty()) {
+                Element aChild = item.selectFirst("a");
+                if (aChild != null) {
+                    extractedTexts.add(aChild.text().trim());
+                } else {
+                    extractedTexts.add(text);
+                }
+            }
+        }
+        return extractedTexts;
+    }
+
+    public static void main(String[] args) {
+        Arguments arguments = parseArguments(args);
+        Map<String, String> dicIds = generateDictionaryNameId();
+        LOGGER.log(Level.INFO, "Searching for team or player: {0}", arguments.text);
+
+        WebDriver driver = configureWebDriver();
+        String baseURL = "https://whoscored.com";
+
+        try {
+            driver.get(baseURL + "/search/?t=" + arguments.text);
+            Document soup = Jsoup.parse(Objects.requireNonNull(driver.getPageSource()));
+            Element table = getTableByTitle(soup, arguments.searchBy);
+
+            if (table == null) {
+                LOGGER.log(Level.SEVERE, "Results table not found for {0}.", arguments.searchBy);
+                return;
+            }
+
+            Element linkElement = table.selectFirst("a[href]");
+            if (linkElement == null) {
+                LOGGER.log(Level.SEVERE, "Link not found in the results table.");
+                return;
+            }
+            String relativeURL = linkElement.attr("href");
+            String fullURL = baseURL + relativeURL;
+            driver.get(fullURL);
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(arguments.tableBy))));
+
+            soup = Jsoup.parse(driver.getPageSource());
+            Element dataTable = getTableById(soup, dicIds.get(arguments.tableBy));
+            if (dataTable != null) {
+                List<Map<String, String>> data = getTableByIdContent(dataTable);
+                if (data != null) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty print the JSON
+
+                    try {
+                        String jsonOutput = mapper.writeValueAsString(data);
+                        System.out.println(jsonOutput);
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, "Error converting data to JSON using Jackson: {0}", e.getMessage());
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "An error occurred: {0}", e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+}

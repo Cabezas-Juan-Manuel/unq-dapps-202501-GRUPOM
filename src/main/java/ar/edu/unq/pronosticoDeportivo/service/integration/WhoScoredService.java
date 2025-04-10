@@ -2,7 +2,6 @@ package ar.edu.unq.pronosticoDeportivo.service.integration;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -19,11 +18,13 @@ import org.jsoup.select.Elements;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 import java.time.Duration;
 
+@Service
 public class WhoScoredService {
 
     private static final Logger LOGGER = Logger.getLogger(WhoScoredService.class.getName());
@@ -37,38 +38,6 @@ public class WhoScoredService {
         options.addArguments("window-size=1920,1080");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         return new ChromeDriver(options);
-    }
-
-    private static class Arguments {
-        String text;
-        String searchBy;
-        String tableBy;
-
-        public Arguments(String text, String searchBy, String tableBy) {
-            this.text = text;
-            this.searchBy = searchBy;
-            this.tableBy = tableBy;
-        }
-    }
-
-    private static Arguments parseArguments(String[] args) {
-        if (args.length != 3) {
-            System.err.println("Usage: java WhoScoredScraper <text> <searchBy (player|team)> <tableBy (team-stats|team-players|player-stats|player-latest-matches)>");
-            System.exit(1);
-        }
-        String text = args[0];
-        String searchBy = args[1];
-        String tableBy = args[2];
-        if (!searchBy.equals("player") && !searchBy.equals("team")) {
-            System.err.println("Invalid value for searchBy. Must be 'player' or 'team'.");
-            System.exit(1);
-        }
-        if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
-                !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
-            System.err.println("Invalid value for tableBy.");
-            System.exit(1);
-        }
-        return new Arguments(text, searchBy, tableBy);
     }
 
     private static Map<String, String> generateDictionaryNameId() {
@@ -107,16 +76,16 @@ public class WhoScoredService {
             return null;
         }
 
-        Element thead = tableChildren.get(0);
-        Element tbody = tableChildren.get(1);
+        Element head = tableChildren.get(0);
+        Element body = tableChildren.get(1);
 
-        Elements headerElements = thead.select("tr:first-child > th");
+        Elements headerElements = Objects.requireNonNull(head.firstElementChild()).children();
         List<String> headers = new ArrayList<>();
         for (Element th : headerElements) {
             headers.add(th.text().trim());
         }
 
-        Elements rowElements = tbody.select("tr");
+        Elements rowElements = body.children();
         return zipTableHeadWithBody(headers, rowElements);
     }
 
@@ -124,15 +93,11 @@ public class WhoScoredService {
         List<Map<String, String>> data = new ArrayList<>();
         for (Element row : rows) {
             List<String> values = getValuesFromRow(row);
-            if (headers.size() == values.size()) {
-                Map<String, String> rowDict = new HashMap<>();
-                for (int i = 0; i < headers.size(); i++) {
-                    rowDict.put(headers.get(i), values.get(i));
-                }
-                data.add(rowDict);
-            } else {
-                LOGGER.log(Level.WARNING, "Warning: Number of headers and values in a row do not match.");
+            Map<String, String> rowDict = new HashMap<>();
+            for (int i = 0; i < headers.size(); i++) {
+                rowDict.put(headers.get(i), values.get(i));
             }
+            data.add(rowDict);
         }
         return data;
     }
@@ -146,6 +111,10 @@ public class WhoScoredService {
                 Element aChild = item.selectFirst("a");
                 if (aChild != null) {
                     extractedTexts.add(aChild.text().trim());
+                } else if (text.matches("\\d+\\(\\d+\\)")) {
+                    String[] parts = text.split("[() ]+");
+                    int total = Integer.parseInt(parts[0]) + Integer.parseInt(parts[1]);
+                    extractedTexts.add(String.valueOf(total));
                 } else {
                     extractedTexts.add(text);
                 }
@@ -154,21 +123,29 @@ public class WhoScoredService {
         return extractedTexts;
     }
 
-    public static void main(String[] args) {
-        Arguments arguments = parseArguments(args);
+    public void getDataFromWeb(String text, String searchBy, String tableBy) {
+        if (!searchBy.equals("player") && !searchBy.equals("team")) {
+            System.err.println("Invalid value for searchBy. Must be 'player' or 'team'.");
+            System.exit(1);
+        }
+        if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
+                !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
+            System.err.println("Invalid value for tableBy.");
+            System.exit(1);
+        }
+
         Map<String, String> dicIds = generateDictionaryNameId();
-        LOGGER.log(Level.INFO, "Searching for team or player: {0}", arguments.text);
 
         WebDriver driver = configureWebDriver();
-        String baseURL = "https://whoscored.com";
 
         try {
-            driver.get(baseURL + "/search/?t=" + arguments.text);
+            String baseURL = "https://whoscored.com";
+            driver.get(baseURL + "/search/?t=" + text);
             Document soup = Jsoup.parse(Objects.requireNonNull(driver.getPageSource()));
-            Element table = getTableByTitle(soup, arguments.searchBy);
+            Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
-                LOGGER.log(Level.SEVERE, "Results table not found for {0}.", arguments.searchBy);
+                LOGGER.log(Level.SEVERE, "Results table not found for {searchBy}.", searchBy);
                 return;
             }
 
@@ -182,27 +159,27 @@ public class WhoScoredService {
             driver.get(fullURL);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(arguments.tableBy))));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(tableBy))));
 
             soup = Jsoup.parse(driver.getPageSource());
-            Element dataTable = getTableById(soup, dicIds.get(arguments.tableBy));
+            Element dataTable = getTableById(soup, dicIds.get(tableBy));
             if (dataTable != null) {
                 List<Map<String, String>> data = getTableByIdContent(dataTable);
                 if (data != null) {
                     ObjectMapper mapper = new ObjectMapper();
-                    mapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty print the JSON
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
                     try {
                         String jsonOutput = mapper.writeValueAsString(data);
                         System.out.println(jsonOutput);
                     } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, "Error converting data to JSON using Jackson: {0}", e.getMessage());
+                        LOGGER.log(Level.SEVERE, "Error converting data to JSON using Jackson: {text}", e.getMessage());
                     }
                 }
             }
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "An error occurred: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "An error occurred: {text}", e.getMessage());
         } finally {
             driver.quit();
         }

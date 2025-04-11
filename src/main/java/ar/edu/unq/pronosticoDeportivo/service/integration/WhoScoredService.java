@@ -28,7 +28,7 @@ public class WhoScoredService {
 
     private static final Logger LOGGER = Logger.getLogger(WhoScoredService.class.getName());
 
-    private WebDriver configureWebDriver() {
+    private static WebDriver configureWebDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
@@ -39,7 +39,7 @@ public class WhoScoredService {
         return new ChromeDriver(options);
     }
 
-    private Map<String, String> generateMapNameId() {
+    private static Map<String, String> generateMapNameId() {
         Map<String, String> dictionary = new HashMap<>();
         dictionary.put("team-stats", "top-team-stats-summary-grid");
         dictionary.put("team-players", "top-player-stats-summary-grid");
@@ -48,7 +48,7 @@ public class WhoScoredService {
         return dictionary;
     }
 
-    private Element getTableByTitle(Document doc, String title) {
+    private static Element getTableByTitle(Document doc, String title) {
         Elements h2s = doc.select("h2");
         for (Element h2 : h2s) {
             if (h2.text().toLowerCase().contains(title.toLowerCase())) {
@@ -58,7 +58,7 @@ public class WhoScoredService {
         return null;
     }
 
-    private Element getTableById(Document doc, String id) {
+    private static Element getTableById(Document doc, String id) {
         Element table = doc.selectFirst("[id='" + id + "']");
         if (table == null) {
             LOGGER.log(Level.SEVERE, "Stadistics table not found for {0}.", id);
@@ -67,7 +67,7 @@ public class WhoScoredService {
         return table;
     }
 
-    private List<Map<String, String>> getTableByIdContent(Element table) {
+    private static List<Map<String, String>> getTableByIdContent(Element table) {
         Elements tableChildren = table.children();
 
         if (tableChildren.size() < 2) {
@@ -88,7 +88,7 @@ public class WhoScoredService {
         return zipTableHeadWithBody(headers, rowElements);
     }
 
-    private List<Map<String, String>> zipTableHeadWithBody(List<String> headers, Elements rows) {
+    private static List<Map<String, String>> zipTableHeadWithBody(List<String> headers, Elements rows) {
         List<Map<String, String>> data = new ArrayList<>();
         for (Element row : rows) {
             List<String> values = getValuesFromRow(row);
@@ -101,7 +101,7 @@ public class WhoScoredService {
         return data;
     }
 
-    private List<String> getValuesFromRow(Element row) {
+    private static List<String> getValuesFromRow(Element row) {
         List<String> extractedTexts = new ArrayList<>();
         Elements items = row.children();
         for (Element item : items) {
@@ -122,7 +122,7 @@ public class WhoScoredService {
         return extractedTexts;
     }
 
-    public String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
+    public static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
             System.err.println("Invalid value for searchBy. Must be 'player' or 'team'.");
             System.exit(1);

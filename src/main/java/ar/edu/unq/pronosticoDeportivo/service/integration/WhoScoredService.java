@@ -1,23 +1,22 @@
 package ar.edu.unq.pronosticoDeportivo.service.integration;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.By;
 
-import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.*;
 
-import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.jsoup.Jsoup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class WhoScoredService {
 
     private static final Logger LOGGER = Logger.getLogger(WhoScoredService.class.getName());
 
-    private static WebDriver configureWebDriver() {
+    private WebDriver configureWebDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
@@ -40,7 +39,7 @@ public class WhoScoredService {
         return new ChromeDriver(options);
     }
 
-    private static Map<String, String> generateDictionaryNameId() {
+    private Map<String, String> generateMapNameId() {
         Map<String, String> dictionary = new HashMap<>();
         dictionary.put("team-stats", "top-team-stats-summary-grid");
         dictionary.put("team-players", "top-player-stats-summary-grid");
@@ -49,7 +48,7 @@ public class WhoScoredService {
         return dictionary;
     }
 
-    private static Element getTableByTitle(Document doc, String title) {
+    private Element getTableByTitle(Document doc, String title) {
         Elements h2s = doc.select("h2");
         for (Element h2 : h2s) {
             if (h2.text().toLowerCase().contains(title.toLowerCase())) {
@@ -59,7 +58,7 @@ public class WhoScoredService {
         return null;
     }
 
-    private static Element getTableById(Document doc, String id) {
+    private Element getTableById(Document doc, String id) {
         Element table = doc.selectFirst("[id='" + id + "']");
         if (table == null) {
             LOGGER.log(Level.SEVERE, "Stadistics table not found for {0}.", id);
@@ -68,11 +67,11 @@ public class WhoScoredService {
         return table;
     }
 
-    private static List<Map<String, String>> getTableByIdContent(Element table) {
+    private List<Map<String, String>> getTableByIdContent(Element table) {
         Elements tableChildren = table.children();
 
         if (tableChildren.size() < 2) {
-            LOGGER.log(Level.WARNING, "Warning: La tabla no tiene al menos dos hijos directos (head y body).");
+            LOGGER.log(Level.WARNING, "Warning: The table should have two direct children (head y body).");
             return null;
         }
 
@@ -89,7 +88,7 @@ public class WhoScoredService {
         return zipTableHeadWithBody(headers, rowElements);
     }
 
-    private static List<Map<String, String>> zipTableHeadWithBody(List<String> headers, Elements rows) {
+    private List<Map<String, String>> zipTableHeadWithBody(List<String> headers, Elements rows) {
         List<Map<String, String>> data = new ArrayList<>();
         for (Element row : rows) {
             List<String> values = getValuesFromRow(row);
@@ -102,7 +101,7 @@ public class WhoScoredService {
         return data;
     }
 
-    private static List<String> getValuesFromRow(Element row) {
+    private List<String> getValuesFromRow(Element row) {
         List<String> extractedTexts = new ArrayList<>();
         Elements items = row.children();
         for (Element item : items) {
@@ -123,7 +122,7 @@ public class WhoScoredService {
         return extractedTexts;
     }
 
-    public void getDataFromWeb(String text, String searchBy, String tableBy) {
+    public String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
             System.err.println("Invalid value for searchBy. Must be 'player' or 'team'.");
             System.exit(1);
@@ -134,7 +133,9 @@ public class WhoScoredService {
             System.exit(1);
         }
 
-        Map<String, String> dicIds = generateDictionaryNameId();
+        String jsonOutput = null;
+
+        Map<String, String> dicIds = generateMapNameId();
 
         WebDriver driver = configureWebDriver();
 
@@ -145,14 +146,14 @@ public class WhoScoredService {
             Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
-                LOGGER.log(Level.SEVERE, "Results table not found for {searchBy}.", searchBy);
-                return;
+                LOGGER.log(Level.SEVERE, "Results table not found for {0}.", searchBy);
+                return null;
             }
 
             Element linkElement = table.selectFirst("a[href]");
             if (linkElement == null) {
                 LOGGER.log(Level.SEVERE, "Link not found in the results table.");
-                return;
+                return null;
             }
             String relativeURL = linkElement.attr("href");
             String fullURL = baseURL + relativeURL;
@@ -166,12 +167,10 @@ public class WhoScoredService {
             if (dataTable != null) {
                 List<Map<String, String>> data = getTableByIdContent(dataTable);
                 if (data != null) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
+                        // TODO: I would like to change this and use the JsonParser class instead.
+                        ObjectMapper mapper = new ObjectMapper();
                     try {
-                        String jsonOutput = mapper.writeValueAsString(data);
-                        System.out.println(jsonOutput);
+                        jsonOutput = mapper.writeValueAsString(data);
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, "Error converting data to JSON using Jackson: {text}", e.getMessage());
                     }
@@ -183,5 +182,6 @@ public class WhoScoredService {
         } finally {
             driver.quit();
         }
+        return jsonOutput;
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PronosticoDeportivoApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(PronosticoDeportivoApplication.class, args);
 	}
 

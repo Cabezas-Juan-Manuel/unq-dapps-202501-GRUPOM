@@ -17,6 +17,7 @@ public class PronosticoDeportivoController {
 
     @GetMapping("/team/{teamName}/players")
     public ResponseEntity<List<Player>> getTeamPlayers(@PathVariable String teamName) {
+        System.out.println(teamName);
         String jsonString = WhoScoredService.getDataFromTableOnWeb(teamName, "team", "team-players");
         List<Player> players = JsonParser.fromJsonToPlayerList(jsonString);
         return ResponseEntity.ok().body(players);

@@ -1,8 +1,8 @@
-package ar.edu.unq.pronosticoDeportivo.repositories;
+package ar.edu.unq.pronosticodeportivo.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import ar.edu.unq.pronosticoDeportivo.model.User;
+import ar.edu.unq.pronosticodeportivo.model.User;
 
 public interface IUserRepository extends JpaRepository<User, Long>{
     @Query(

@@ -1,10 +1,10 @@
-package ar.edu.unq.pronosticoDeportivo.security;
+package ar.edu.unq.pronosticodeportivo.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
-import ar.edu.unq.pronosticoDeportivo.model.User;
+import ar.edu.unq.pronosticodeportivo.model.User;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;

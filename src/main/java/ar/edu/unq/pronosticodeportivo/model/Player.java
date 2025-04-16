@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo.model;
+package ar.edu.unq.pronosticodeportivo.model;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo.security;
+package ar.edu.unq.pronosticodeportivo.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

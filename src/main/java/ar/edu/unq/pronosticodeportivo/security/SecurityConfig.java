@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo.security;
+package ar.edu.unq.pronosticodeportivo.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

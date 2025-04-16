@@ -1,9 +1,6 @@
-package ar.edu.unq.pronosticoDeportivo;
+package ar.edu.unq.pronosticodeportivo;
 
-import ar.edu.unq.pronosticoDeportivo.model.Player;
-import ar.edu.unq.pronosticoDeportivo.service.integration.WhoScoredService;
-import ar.edu.unq.pronosticoDeportivo.utils.JsonParser;
-import org.junit.jupiter.api.Assertions;
+import ar.edu.unq.pronosticodeportivo.model.Player;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +8,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

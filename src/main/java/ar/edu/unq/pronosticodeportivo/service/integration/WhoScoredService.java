@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo.service.integration;
+package ar.edu.unq.pronosticodeportivo.service.integration;
 
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;

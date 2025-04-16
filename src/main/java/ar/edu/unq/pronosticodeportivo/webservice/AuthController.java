@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo.webservice;
+package ar.edu.unq.pronosticodeportivo.webservice;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,14 +6,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ar.edu.unq.pronosticoDeportivo.model.User;
-import ar.edu.unq.pronosticoDeportivo.security.JwtService;
-import ar.edu.unq.pronosticoDeportivo.utils.AuthValidator;
-import ar.edu.unq.pronosticoDeportivo.utils.UserMapper;
-import ar.edu.unq.pronosticoDeportivo.webservice.Dtos.LoginDto;
-import ar.edu.unq.pronosticoDeportivo.webservice.Dtos.RegisterDto;
-import ar.edu.unq.pronosticoDeportivo.webservice.Dtos.UserDto;
-import ar.edu.unq.pronosticoDeportivo.service.UserService;
+import ar.edu.unq.pronosticodeportivo.model.User;
+import ar.edu.unq.pronosticodeportivo.security.JwtService;
+import ar.edu.unq.pronosticodeportivo.utils.AuthValidator;
+import ar.edu.unq.pronosticodeportivo.utils.UserMapper;
+import ar.edu.unq.pronosticodeportivo.webservice.Dtos.LoginDto;
+import ar.edu.unq.pronosticodeportivo.webservice.Dtos.RegisterDto;
+import ar.edu.unq.pronosticodeportivo.webservice.Dtos.UserDto;
+import ar.edu.unq.pronosticodeportivo.service.UserService;
 
 
 @RestController

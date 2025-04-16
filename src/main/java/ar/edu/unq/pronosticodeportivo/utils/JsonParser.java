@@ -1,7 +1,7 @@
-package ar.edu.unq.pronosticoDeportivo.utils;
+package ar.edu.unq.pronosticodeportivo.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import ar.edu.unq.pronosticoDeportivo.model.Player;
+import ar.edu.unq.pronosticodeportivo.model.Player;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 

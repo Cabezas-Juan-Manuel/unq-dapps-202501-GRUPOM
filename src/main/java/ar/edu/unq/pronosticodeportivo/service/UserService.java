@@ -1,12 +1,12 @@
-package ar.edu.unq.pronosticoDeportivo.service;
+package ar.edu.unq.pronosticodeportivo.service;
 
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import ar.edu.unq.pronosticoDeportivo.model.User;
-import ar.edu.unq.pronosticoDeportivo.repositories.IUserRepository;
-import ar.edu.unq.pronosticoDeportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronosticodeportivo.model.User;
+import ar.edu.unq.pronosticodeportivo.repositories.IUserRepository;
+import ar.edu.unq.pronosticodeportivo.service.Errors.UserErrors;
 
 @Service
 public class UserService {

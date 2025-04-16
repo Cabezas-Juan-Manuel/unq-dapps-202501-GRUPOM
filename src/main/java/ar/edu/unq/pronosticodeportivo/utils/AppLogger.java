@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo.utils;
+package ar.edu.unq.pronosticodeportivo.utils;
 
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;

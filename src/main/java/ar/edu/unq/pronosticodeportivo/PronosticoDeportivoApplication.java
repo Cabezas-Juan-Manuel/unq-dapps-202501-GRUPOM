@@ -1,4 +1,4 @@
-package ar.edu.unq.pronosticoDeportivo;
+package ar.edu.unq.pronosticodeportivo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

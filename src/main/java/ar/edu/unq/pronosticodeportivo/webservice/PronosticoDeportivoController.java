@@ -1,8 +1,8 @@
-package ar.edu.unq.pronosticoDeportivo.webservice;
+package ar.edu.unq.pronosticodeportivo.webservice;
 
-import ar.edu.unq.pronosticoDeportivo.model.Player;
-import ar.edu.unq.pronosticoDeportivo.service.integration.WhoScoredService;
-import ar.edu.unq.pronosticoDeportivo.utils.JsonParser;
+import ar.edu.unq.pronosticodeportivo.model.Player;
+import ar.edu.unq.pronosticodeportivo.service.integration.WhoScoredService;
+import ar.edu.unq.pronosticodeportivo.utils.JsonParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

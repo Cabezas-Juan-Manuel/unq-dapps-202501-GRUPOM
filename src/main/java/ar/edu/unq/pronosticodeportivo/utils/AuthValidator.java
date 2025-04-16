@@ -1,8 +1,8 @@
-package ar.edu.unq.pronosticoDeportivo.utils;
+package ar.edu.unq.pronosticodeportivo.utils;
 
 import java.util.regex.Pattern;
 
-import ar.edu.unq.pronosticoDeportivo.webservice.Dtos.RegisterDto;
+import ar.edu.unq.pronosticodeportivo.webservice.Dtos.RegisterDto;
 
 public class AuthValidator {
 

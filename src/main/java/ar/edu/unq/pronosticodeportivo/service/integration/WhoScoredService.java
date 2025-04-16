@@ -1,5 +1,6 @@
 package ar.edu.unq.pronosticodeportivo.service.integration;
 
+import ar.edu.unq.pronosticodeportivo.utils.AppLogger;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -7,8 +8,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.By;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.*;
 
 import org.jsoup.select.Elements;
@@ -19,14 +18,14 @@ import org.jsoup.Jsoup;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 import java.time.Duration;
 
 @Service
 public class WhoScoredService {
 
-    private static final Logger LOGGER = Logger.getLogger(WhoScoredService.class.getName());
+    private WhoScoredService() {
+        throw new IllegalStateException("Utility class");
+    }
 
     private static WebDriver configureWebDriver() {
         ChromeOptions options = new ChromeOptions();
@@ -61,7 +60,7 @@ public class WhoScoredService {
     private static Element getTableById(Document doc, String id) {
         Element table = doc.selectFirst("[id='" + id + "']");
         if (table == null) {
-            LOGGER.log(Level.SEVERE, "Stadistics table not found for {0}.", id);
+            AppLogger.error("WhoScoredService", "getTableById", "Stadistics table not found");
             return null;
         }
         return table;
@@ -71,8 +70,8 @@ public class WhoScoredService {
         Elements tableChildren = table.children();
 
         if (tableChildren.size() < 2) {
-            LOGGER.log(Level.WARNING, "Warning: The table should have two direct children (head y body).");
-            return null;
+            AppLogger.warn("WhoScoredService", "getTableByIdContent", "The table should have two direct children (head y body)");
+            return Collections.emptyList();
         }
 
         Element head = tableChildren.get(0);
@@ -124,12 +123,12 @@ public class WhoScoredService {
 
     public static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
-            System.err.println("Invalid value for searchBy. Must be 'player' or 'team'.");
+            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Invalid value for searchBy. Must be 'player' or 'team'");
             System.exit(1);
         }
         if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
                 !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
-            System.err.println("Invalid value for tableBy.");
+            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Invalid value for tableBy");
             System.exit(1);
         }
 
@@ -146,13 +145,13 @@ public class WhoScoredService {
             Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
-                LOGGER.log(Level.SEVERE, "Results table not found for {0}.", searchBy);
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", String.format("Results table not found for %s", text));
                 return null;
             }
 
             Element linkElement = table.selectFirst("a[href]");
             if (linkElement == null) {
-                LOGGER.log(Level.SEVERE, "Link not found in the results table.");
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Link not found in the results table");
                 return null;
             }
             String relativeURL = linkElement.attr("href");
@@ -167,18 +166,13 @@ public class WhoScoredService {
             if (dataTable != null) {
                 List<Map<String, String>> data = getTableByIdContent(dataTable);
                 if (data != null) {
-                        // TODO: I would like to change this and use the JsonParser class instead.
-                        ObjectMapper mapper = new ObjectMapper();
-                    try {
-                        jsonOutput = mapper.writeValueAsString(data);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, "Error converting data to JSON using Jackson: {text}", e.getMessage());
-                    }
+                    ObjectMapper mapper = new ObjectMapper();
+                    jsonOutput = mapper.writeValueAsString(data);
                 }
             }
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "An error occurred: {text}", e.getMessage());
+            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", e.getMessage());
         } finally {
             driver.quit();
         }

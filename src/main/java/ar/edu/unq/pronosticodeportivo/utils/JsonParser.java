@@ -12,6 +12,10 @@ public class JsonParser {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private JsonParser(){
+        throw new IllegalStateException("Utility class");
+    }
+
     public static List<Player> fromJsonToPlayerList(String json) {
         // Deserializar el JSON como JsonNode
         List<Player> playerList = new ArrayList<>();

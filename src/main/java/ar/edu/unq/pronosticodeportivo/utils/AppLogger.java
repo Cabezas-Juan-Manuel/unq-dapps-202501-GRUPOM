@@ -13,7 +13,6 @@ public class AppLogger {
     private static final Logger logger = Logger.getLogger("pronosticoDeportivo");
 
     private AppLogger() {
-        throw new IllegalStateException("Utility class");
     }
 
     static {

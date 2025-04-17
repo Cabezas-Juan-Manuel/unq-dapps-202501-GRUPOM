@@ -24,7 +24,6 @@ import java.time.Duration;
 public class WhoScoredService {
 
     private WhoScoredService() {
-        throw new IllegalStateException("Utility class");
     }
 
     private static WebDriver configureWebDriver() {

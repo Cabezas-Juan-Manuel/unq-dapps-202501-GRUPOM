@@ -16,11 +16,11 @@ public class UserService {
     }
 
     public User createUser(String name, String password){
-    User user = userDao.getByName(name);
-    if (user != null){
-        throw new RuntimeException("user already registered");
-    }
-    return this.generateNewUser(name, password);
+        User user = userDao.getByName(name);
+        if (user != null){
+            throw new IllegalArgumentException("user already registered");
+        }
+        return this.generateNewUser(name, password);
     }
 
     private User generateNewUser(String name, String password) {        
@@ -31,8 +31,11 @@ public class UserService {
     }
 
     public User getUser(String name, String password) {
-        User user = Optional.ofNullable(this.userDao.getByName(name))
-        .orElseThrow(() -> new RuntimeException(UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage()));
+        User user = Optional
+                .ofNullable(this.userDao.getByName(name))
+                .orElseThrow(() -> new RuntimeException(
+                        UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage()
+                ));
         validatePassWord(user.getPassword(), password);
         return userDao.getByName(name);
     }
@@ -40,10 +43,12 @@ public class UserService {
     private void validatePassWord(String encodedPassword, String rawPassword) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if(!encoder.matches(rawPassword, encodedPassword)){
-            throw  new RuntimeException(UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage());
+            throw new IllegalArgumentException(UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage());
         }
     }
 
-
+    public void deleteUsers() {
+        userDao.deleteAll();
+    }
 
 }

@@ -1,7 +1,6 @@
 package ar.edu.unq.pronosticodeportivo.service;
 
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ar.edu.unq.pronosticodeportivo.model.User;
@@ -10,8 +9,11 @@ import ar.edu.unq.pronosticodeportivo.service.Errors.UserErrors;
 
 @Service
 public class UserService {
-    @Autowired
-    private IUserRepository userDao;
+    private final IUserRepository userDao;
+
+    public UserService(IUserRepository userDao) {
+        this.userDao = userDao;
+    }
 
     public User createUser(String name, String password){
     User user = userDao.getByName(name);

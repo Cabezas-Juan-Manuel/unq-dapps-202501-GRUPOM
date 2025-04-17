@@ -1,6 +1,9 @@
 package ar.edu.unq.pronosticodeportivo.service.integration;
 
+import ar.edu.unq.pronosticodeportivo.model.Player;
 import ar.edu.unq.pronosticodeportivo.utils.AppLogger;
+import ar.edu.unq.pronosticodeportivo.utils.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -57,38 +60,29 @@ public class WhoScoredService {
     }
 
     private static Element getTableById(Document doc, String id) {
-        Element table = doc.selectFirst("[id='" + id + "']");
-        if (table == null) {
-            AppLogger.error("WhoScoredService", "getTableById", "Stadistics table not found");
-            return null;
-        }
-        return table;
+        return doc.selectFirst("[id='" + id + "']");
     }
 
-    private static List<Map<String, String>> getTableByIdContent(Element table) {
+    private static List<Map<String, String>> getTableContent(Element table) {
         Elements tableChildren = table.children();
+        List<Map<String, String>> data = new ArrayList<>();
 
-        if (tableChildren.size() < 2) {
-            AppLogger.warn("WhoScoredService", "getTableByIdContent", "The table should have two direct children (head y body)");
-            return Collections.emptyList();
+        if (tableChildren.size() != 2) {
+            AppLogger.warn("WhoScoredService", "getTableByIdContent", "The table should have only two direct children (head and body)");
+            return null;
         }
 
-        Element head = tableChildren.get(0);
+        Element header = tableChildren.get(0);
         Element body = tableChildren.get(1);
 
-        Elements headerElements = Objects.requireNonNull(head.firstElementChild()).children();
+        Elements headerElements = Objects.requireNonNull(header.firstElementChild()).children();
         List<String> headers = new ArrayList<>();
         for (Element th : headerElements) {
             headers.add(th.text().trim());
         }
 
-        Elements rowElements = body.children();
-        return zipTableHeadWithBody(headers, rowElements);
-    }
-
-    private static List<Map<String, String>> zipTableHeadWithBody(List<String> headers, Elements rows) {
-        List<Map<String, String>> data = new ArrayList<>();
-        for (Element row : rows) {
+        Elements bodyElements = body.children();
+        for (Element row : bodyElements) {
             List<String> values = getValuesFromRow(row);
             Map<String, String> rowDict = new HashMap<>();
             for (int i = 0; i < headers.size(); i++) {
@@ -120,18 +114,18 @@ public class WhoScoredService {
         return extractedTexts;
     }
 
-    public static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
+    private static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
             AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Invalid value for searchBy. Must be 'player' or 'team'");
-            System.exit(1);
+            throw new IllegalArgumentException("Available arguments: player, team");
         }
         if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
                 !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
             AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Invalid value for tableBy");
-            System.exit(1);
+            throw new IllegalArgumentException("Available arguments: team-stats, team-players");
         }
 
-        String jsonOutput = null;
+        String jsonOutput = "";
 
         Map<String, String> dicIds = generateMapNameId();
 
@@ -140,18 +134,27 @@ public class WhoScoredService {
         try {
             String baseURL = "https://whoscored.com";
             driver.get(baseURL + "/search/?t=" + text);
-            Document soup = Jsoup.parse(Objects.requireNonNull(driver.getPageSource()));
+
+            String pageSource = driver.getPageSource();
+
+            if (pageSource == null) {
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", String.format("Page source is empty for search term: %s", text));
+                return jsonOutput;
+            }
+
+            Document soup = Jsoup.parse(pageSource);
+
             Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", String.format("Results table not found for %s", text));
-                return null;
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Table by title not found");
+                return jsonOutput;
             }
 
             Element linkElement = table.selectFirst("a[href]");
             if (linkElement == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Link not found in the results table");
-                return null;
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "No link found in results table");
+                return jsonOutput;
             }
             String relativeURL = linkElement.attr("href");
             String fullURL = baseURL + relativeURL;
@@ -160,21 +163,37 @@ public class WhoScoredService {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(tableBy))));
 
-            soup = Jsoup.parse(driver.getPageSource());
-            Element dataTable = getTableById(soup, dicIds.get(tableBy));
-            if (dataTable != null) {
-                List<Map<String, String>> data = getTableByIdContent(dataTable);
-                if (data != null) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    jsonOutput = mapper.writeValueAsString(data);
-                }
+            pageSource = driver.getPageSource();
+            if (pageSource == null) {
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", String.format("Page source is empty for search term: %s", text));
+                return jsonOutput;
             }
 
-        } catch (Exception e) {
-            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", e.getMessage());
+            soup = Jsoup.parse(pageSource);
+
+            Element dataTable = getTableById(soup, dicIds.get(tableBy));
+            if (dataTable == null) {
+                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Table by id not found");
+                return jsonOutput;
+            }
+
+            List<Map<String, String>> data = getTableContent(dataTable);
+            ObjectMapper mapper = new ObjectMapper();
+            jsonOutput = mapper.writeValueAsString(data);
+        } catch (JsonProcessingException e) {
+            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Object mapper error");
+            throw new RuntimeException(e);
         } finally {
             driver.quit();
         }
         return jsonOutput;
+    }
+
+    public static List<Player> getPlayersFromTeam(String teamName) {
+        String jsonString = getDataFromTableOnWeb(teamName, "team", "team-players");
+        if (jsonString == null) {
+            return new ArrayList<>();
+        }
+        return JsonParser.fromJsonToPlayerList(jsonString);
     }
 }

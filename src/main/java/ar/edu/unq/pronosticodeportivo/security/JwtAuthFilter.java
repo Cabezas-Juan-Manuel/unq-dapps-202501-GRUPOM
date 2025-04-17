@@ -22,7 +22,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private static final String key = "VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5Cg==";
+    private static final String KEY = "VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5Cg==";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -69,7 +69,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private Key getKey() {
-        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = KEY.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Service
 public class JwtService {
-    private static final String key = "VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5Cg==";
+    private static final String KEY = "VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5Cg==";
 
     public String getToken(User user) {
         return getNewToken(new HashMap<>(), user);
@@ -31,7 +31,7 @@ public class JwtService {
     }
 
     private Key getKey() {
-        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = KEY.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

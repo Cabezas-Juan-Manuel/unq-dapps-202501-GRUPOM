@@ -11,6 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.By;
 
+import java.beans.MethodDescriptor;
 import java.util.*;
 
 import org.jsoup.select.Elements;
@@ -68,8 +69,7 @@ public class WhoScoredService {
         List<Map<String, String>> data = new ArrayList<>();
 
         if (tableChildren.size() != 2) {
-            AppLogger.warn("WhoScoredService", "getTableByIdContent", "The table should have only two direct children (head and body)");
-            return null;
+            return data;
         }
 
         Element header = tableChildren.get(0);
@@ -115,13 +115,16 @@ public class WhoScoredService {
     }
 
     private static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
+        String METHOD = "getDataFromTableOnWeb";
+        String CLASS = WhoScoredService.class.getName();
+
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
-            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Invalid value for searchBy. Must be 'player' or 'team'");
+            AppLogger.error(CLASS, METHOD, "Invalid value for searchBy. Must be 'player' or 'team'");
             throw new IllegalArgumentException("Available arguments: player, team");
         }
         if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
                 !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
-            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Invalid value for tableBy");
+            AppLogger.error(CLASS, METHOD, "Invalid value for tableBy");
             throw new IllegalArgumentException("Available arguments: team-stats, team-players");
         }
 
@@ -138,7 +141,7 @@ public class WhoScoredService {
             String pageSource = driver.getPageSource();
 
             if (pageSource == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", String.format("Page source is empty for search term: %s", text));
+                AppLogger.error(CLASS, METHOD, "Page source is empty");
                 return jsonOutput;
             }
 
@@ -147,13 +150,13 @@ public class WhoScoredService {
             Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Table by title not found");
+                AppLogger.error(CLASS, METHOD, "Table by title not found");
                 return jsonOutput;
             }
 
             Element linkElement = table.selectFirst("a[href]");
             if (linkElement == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "No link found in results table");
+                AppLogger.error(CLASS, METHOD, "No link found in results table");
                 return jsonOutput;
             }
             String relativeURL = linkElement.attr("href");
@@ -165,7 +168,7 @@ public class WhoScoredService {
 
             pageSource = driver.getPageSource();
             if (pageSource == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", String.format("Page source is empty for search term: %s", text));
+                AppLogger.error(CLASS, METHOD, String.format("Page source is empty for search term: %s", text));
                 return jsonOutput;
             }
 
@@ -173,16 +176,19 @@ public class WhoScoredService {
 
             Element dataTable = getTableById(soup, dicIds.get(tableBy));
             if (dataTable == null) {
-                AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Table by id not found");
+                AppLogger.error(CLASS, METHOD, "Table by id not found");
                 return jsonOutput;
             }
 
             List<Map<String, String>> data = getTableContent(dataTable);
+            if (data.isEmpty()) {
+                AppLogger.error(METHOD, CLASS, "Table by title not found");
+            }
             ObjectMapper mapper = new ObjectMapper();
             jsonOutput = mapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
-            AppLogger.error("WhoScoredService", "getDataFromTableOnWeb", "Object mapper error");
-            throw new RuntimeException(e);
+            AppLogger.error(CLASS, METHOD, "Object mapper error");
+            throw new IllegalStateException(e);
         } finally {
             driver.quit();
         }

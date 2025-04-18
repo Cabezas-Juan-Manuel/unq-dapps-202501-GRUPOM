@@ -1,9 +1,9 @@
 package ar.edu.unq.pronosticodeportivo.webservice;
 
 import ar.edu.unq.pronosticodeportivo.service.integration.WhoScoredService;
-import ar.edu.unq.pronosticodeportivo.utils.ApiError;
 import ar.edu.unq.pronosticodeportivo.model.Player;
 
+import ar.edu.unq.pronosticodeportivo.utils.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -19,22 +19,19 @@ import java.util.List;
 public class PronosticoDeportivoController {
 
     @GetMapping("/team/{teamName}/players")
-    public ResponseEntity<?> getPlayersFromTeam(@PathVariable String teamName) {
+    public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
         try {
             List<Player> players = WhoScoredService.getPlayersFromTeam(teamName);
 
             if (players.isEmpty()) {
-                ApiError error = new ApiError(HttpStatus.NOT_FOUND.value(), "No players found for team: " + teamName);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(HttpStatus.NOT_FOUND.name(), "Team players not found", null, null));
             }
-            return ResponseEntity.ok(players);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.name(), "Data retrieved successfully", players, null));
 
         } catch (IllegalArgumentException e) {
-            ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(HttpStatus.BAD_REQUEST.name(), "Bad request", null, null));
         } catch (Exception e) {
-            ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An error occurred while retrieving players");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.name(), "Internal server error", null, null));
         }
     }
 }

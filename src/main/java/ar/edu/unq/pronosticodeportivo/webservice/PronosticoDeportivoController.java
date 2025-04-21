@@ -20,7 +20,6 @@ public class PronosticoDeportivoController {
 
     @GetMapping("/team/{teamName}/players")
     public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
-        System.out.println("a");
         try {
             List<Player> players = WhoScoredService.getPlayersFromTeam(teamName);
 

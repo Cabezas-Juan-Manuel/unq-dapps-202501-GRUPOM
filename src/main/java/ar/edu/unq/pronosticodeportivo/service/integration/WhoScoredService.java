@@ -51,6 +51,8 @@ public class WhoScoredService {
     }
 
     private static Element getTableByTitle(Document doc, String title) {
+        System.out.println(doc);
+        System.out.println(title);
         Elements h2s = doc.select("h2");
         for (Element h2 : h2s) {
             if (h2.text().toLowerCase().contains(title.toLowerCase())) {
@@ -146,6 +148,8 @@ public class WhoScoredService {
             }
 
             Document soup = Jsoup.parse(pageSource);
+
+            System.out.println(text);
 
             Element table = getTableByTitle(soup, searchBy);
 

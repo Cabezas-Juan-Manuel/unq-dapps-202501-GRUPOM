@@ -36,8 +36,8 @@ public class WhoScoredService {
         options.addArguments("--disable-gpu");
         options.addArguments("window-size=1920,1080");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        String proxyHost = "45.130.253.71";
-        String proxyPort = "8000";
+        String proxyHost = "193.5.64.188";
+        String proxyPort = "50100";
         Proxy proxy = new Proxy();
         String proxyAddress = proxyHost + ":" + proxyPort;
 
@@ -58,6 +58,7 @@ public class WhoScoredService {
     }
 
     private static Element getTableByTitle(Document doc, String title) {
+        System.out.println(doc);
         Elements h2s = doc.select("h2");
         for (Element h2 : h2s) {
             if (h2.text().toLowerCase().contains(title.toLowerCase())) {

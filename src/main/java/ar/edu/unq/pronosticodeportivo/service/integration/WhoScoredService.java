@@ -37,7 +37,15 @@ public class WhoScoredService {
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
         options.addArguments("window-size=1920,1080");
-        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        // Asegúrate que el User-Agent sea reciente y común
+        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"); // Ejemplo actualizado
+
+        // --- Nuevos Flags para intentar ocultar la automatización ---
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+        options.setExperimentalOption("useAutomationExtension", false);
+        // ---------------------------------------------------------
+
         return new ChromeDriver(options);
     }
 
@@ -147,9 +155,11 @@ public class WhoScoredService {
                 return jsonOutput;
             }
 
+
+
             Document soup = Jsoup.parse(pageSource);
 
-            System.out.println(text);
+            System.out.println(soup);
 
             Element table = getTableByTitle(soup, searchBy);
 

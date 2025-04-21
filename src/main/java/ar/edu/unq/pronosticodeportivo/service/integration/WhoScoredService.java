@@ -28,8 +28,8 @@ public class WhoScoredService {
     private WhoScoredService() {}
 
     private static WebDriver configureWebDriver() {
-        String proxyHost = "193.5.64.188";
-        String proxyPort = "50100";
+        String proxyHost = "219.93.101.63";
+        String proxyPort = "80";
         Proxy proxy = new Proxy();
         String proxyAddress = proxyHost + ":" + proxyPort;
         proxy.setHttpProxy(proxyAddress);

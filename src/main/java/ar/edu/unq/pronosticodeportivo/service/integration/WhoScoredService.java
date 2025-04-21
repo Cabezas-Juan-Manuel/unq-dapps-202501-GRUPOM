@@ -25,8 +25,7 @@ import java.time.Duration;
 @Service
 public class WhoScoredService {
 
-    private WhoScoredService() {
-    }
+    private WhoScoredService() {}
 
     private static WebDriver configureWebDriver() {
         ChromeOptions options = new ChromeOptions();
@@ -36,6 +35,7 @@ public class WhoScoredService {
         options.addArguments("--disable-gpu");
         options.addArguments("window-size=1920,1080");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        /*
         String proxyHost = "193.5.64.188";
         String proxyPort = "50100";
         Proxy proxy = new Proxy();
@@ -45,7 +45,9 @@ public class WhoScoredService {
         proxy.setSslProxy(proxyAddress);
 
         options.setProxy(proxy);
+        **/
         return new ChromeDriver(options);
+
     }
 
     private static Map<String, String> generateMapNameId() {
@@ -58,7 +60,6 @@ public class WhoScoredService {
     }
 
     private static Element getTableByTitle(Document doc, String title) {
-        System.out.println(doc);
         Elements h2s = doc.select("h2");
         for (Element h2 : h2s) {
             if (h2.text().toLowerCase().contains(title.toLowerCase())) {
@@ -155,6 +156,8 @@ public class WhoScoredService {
 
             Document soup = Jsoup.parse(pageSource);
 
+            System.out.println(soup);
+
             Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
@@ -181,6 +184,7 @@ public class WhoScoredService {
             }
 
             soup = Jsoup.parse(pageSource);
+
 
             Element dataTable = getTableById(soup, dicIds.get(tableBy));
             if (dataTable == null) {

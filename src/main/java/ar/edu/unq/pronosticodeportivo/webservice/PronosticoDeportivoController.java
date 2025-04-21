@@ -35,4 +35,9 @@ public class PronosticoDeportivoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.name(), "Internal server error", null, null));
         }
     }
+
+    @GetMapping("/anda")
+    public String team(){
+        return "anda";
+    }
 }

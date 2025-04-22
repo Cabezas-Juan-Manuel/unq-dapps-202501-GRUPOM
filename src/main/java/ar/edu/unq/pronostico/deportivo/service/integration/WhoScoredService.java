@@ -164,7 +164,7 @@ public class WhoScoredService {
 
             pageSource = driver.getPageSource();
             if (pageSource == null) {
-                AppLogger.error(serviceClass, serviceMethod, String.format("Page source is empty for search term"));
+                AppLogger.error(serviceClass, serviceMethod, "Page source is empty for search term");
                 return jsonOutput;
             }
 

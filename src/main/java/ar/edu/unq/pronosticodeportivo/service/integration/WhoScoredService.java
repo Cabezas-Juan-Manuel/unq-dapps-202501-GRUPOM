@@ -11,7 +11,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.By;
 
-import java.beans.MethodDescriptor;
 import java.util.*;
 
 import org.jsoup.select.Elements;
@@ -27,10 +26,7 @@ import java.time.Duration;
 @Service
 public class WhoScoredService {
 
-    private WhoScoredService() {
-    }
-
-    private static WebDriver configureWebDriver() {
+    private WebDriver configureWebDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
@@ -41,7 +37,7 @@ public class WhoScoredService {
         return new ChromeDriver(options);
     }
 
-    private static Map<String, String> generateMapNameId() {
+    private Map<String, String> generateMapNameId() {
         Map<String, String> dictionary = new HashMap<>();
         dictionary.put("team-stats", "top-team-stats-summary-grid");
         dictionary.put("team-players", "top-player-stats-summary-grid");
@@ -50,7 +46,7 @@ public class WhoScoredService {
         return dictionary;
     }
 
-    private static Element getTableByTitle(Document doc, String title) {
+    private Element getTableByTitle(Document doc, String title) {
         Elements h2s = doc.select("h2");
         for (Element h2 : h2s) {
             if (h2.text().toLowerCase().contains(title.toLowerCase())) {
@@ -60,11 +56,11 @@ public class WhoScoredService {
         return null;
     }
 
-    private static Element getTableById(Document doc, String id) {
+    private Element getTableById(Document doc, String id) {
         return doc.selectFirst("[id='" + id + "']");
     }
 
-    private static List<Map<String, String>> getTableContent(Element table) {
+    private List<Map<String, String>> getTableContent(Element table) {
         Elements tableChildren = table.children();
         List<Map<String, String>> data = new ArrayList<>();
 
@@ -93,7 +89,7 @@ public class WhoScoredService {
         return data;
     }
 
-    private static List<String> getValuesFromRow(Element row) {
+    private List<String> getValuesFromRow(Element row) {
         List<String> extractedTexts = new ArrayList<>();
         Elements items = row.children();
         for (Element item : items) {
@@ -114,7 +110,7 @@ public class WhoScoredService {
         return extractedTexts;
     }
 
-    private static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
+    private String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
         String METHOD = "getDataFromTableOnWeb";
         String CLASS = WhoScoredService.class.getName();
 
@@ -195,7 +191,7 @@ public class WhoScoredService {
         return jsonOutput;
     }
 
-    public static List<Player> getPlayersFromTeam(String teamName) {
+    public List<Player> getPlayersFromTeam(String teamName) {
         String jsonString = getDataFromTableOnWeb(teamName, "team", "team-players");
         if (jsonString == null) {
             return new ArrayList<>();

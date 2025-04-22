@@ -18,10 +18,17 @@ import java.util.List;
 @RequestMapping("/pronosticoDeportivo")
 public class PronosticoDeportivoController {
 
+    private final WhoScoredService whoScoredService;
+
+    public PronosticoDeportivoController(WhoScoredService whoScoredService) {
+        this.whoScoredService = whoScoredService;
+    }
+
+
     @GetMapping("/team/{teamName}/players")
     public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
         try {
-            List<Player> players = WhoScoredService.getPlayersFromTeam(teamName);
+            List<Player> players = whoScoredService.getPlayersFromTeam(teamName);
 
             if (players.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(HttpStatus.NOT_FOUND.name(), "Team players not found", null, null));

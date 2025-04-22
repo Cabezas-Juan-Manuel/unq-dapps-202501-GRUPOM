@@ -111,16 +111,16 @@ public class WhoScoredService {
     }
 
     private String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
-        String METHOD = "getDataFromTableOnWeb";
-        String CLASS = WhoScoredService.class.getName();
+        String serviceMethod = "getDataFromTableOnWeb";
+        String serviceClass = WhoScoredService.class.getName();
 
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
-            AppLogger.error(CLASS, METHOD, "Invalid value for searchBy. Must be 'player' or 'team'");
+            AppLogger.error(serviceClass, serviceMethod, "Invalid value for searchBy. Must be 'player' or 'team'");
             throw new IllegalArgumentException("Available arguments: player, team");
         }
         if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
                 !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
-            AppLogger.error(CLASS, METHOD, "Invalid value for tableBy");
+            AppLogger.error(serviceClass, serviceMethod, "Invalid value for tableBy");
             throw new IllegalArgumentException("Available arguments: team-stats, team-players");
         }
 
@@ -137,7 +137,7 @@ public class WhoScoredService {
             String pageSource = driver.getPageSource();
 
             if (pageSource == null) {
-                AppLogger.error(CLASS, METHOD, "Page source is empty");
+                AppLogger.error(serviceClass, serviceMethod, "Page source is empty");
                 return jsonOutput;
             }
 
@@ -146,13 +146,13 @@ public class WhoScoredService {
             Element table = getTableByTitle(soup, searchBy);
 
             if (table == null) {
-                AppLogger.error(CLASS, METHOD, "Table by title not found");
+                AppLogger.error(serviceClass, serviceMethod, "Table by title not found");
                 return jsonOutput;
             }
 
             Element linkElement = table.selectFirst("a[href]");
             if (linkElement == null) {
-                AppLogger.error(CLASS, METHOD, "No link found in results table");
+                AppLogger.error(serviceClass, serviceMethod, "No link found in results table");
                 return jsonOutput;
             }
             String relativeURL = linkElement.attr("href");
@@ -164,7 +164,7 @@ public class WhoScoredService {
 
             pageSource = driver.getPageSource();
             if (pageSource == null) {
-                AppLogger.error(CLASS, METHOD, String.format("Page source is empty for search term: %s", text));
+                AppLogger.error(serviceClass, serviceMethod, String.format("Page source is empty for search term"));
                 return jsonOutput;
             }
 
@@ -172,18 +172,18 @@ public class WhoScoredService {
 
             Element dataTable = getTableById(soup, dicIds.get(tableBy));
             if (dataTable == null) {
-                AppLogger.error(CLASS, METHOD, "Table by id not found");
+                AppLogger.error(serviceClass, serviceMethod, "Table by id not found");
                 return jsonOutput;
             }
 
             List<Map<String, String>> data = getTableContent(dataTable);
             if (data.isEmpty()) {
-                AppLogger.error(METHOD, CLASS, "Table by title not found");
+                AppLogger.error(serviceMethod, serviceClass, "Table by title not found");
             }
             ObjectMapper mapper = new ObjectMapper();
             jsonOutput = mapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
-            AppLogger.error(CLASS, METHOD, "Object mapper error");
+            AppLogger.error(serviceClass, serviceMethod, "Object mapper error");
             throw new IllegalStateException(e);
         } finally {
             driver.quit();

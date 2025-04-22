@@ -19,7 +19,6 @@ public class AppLogger {
         // Remove the handlers by default
         logger.setUseParentHandlers(false);
 
-        // TODO: Think about to make both console and on file.
         ConsoleHandler handler = new ConsoleHandler();
 
         Formatter customFormatter = new Formatter() {

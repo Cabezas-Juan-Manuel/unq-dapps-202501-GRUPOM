@@ -22,8 +22,6 @@ public class PronosticoDeportivoController {
 
     @GetMapping("/team/{teamName}/players")
     public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
-        final Logger log = LoggerFactory.getLogger(PronosticoDeportivoController.class);
-        log.info("Si");
         try {
             List<Player> players = WhoScoredService.getPlayersFromTeam(teamName);
 

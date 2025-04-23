@@ -43,10 +43,9 @@ public class WhoScoredService {
         String chromeBinaryPath = Optional.ofNullable(System.getenv("CHROME_BIN"))
                 .orElse("/usr/bin/google-chrome");
         options.setBinary(chromeBinaryPath);
-
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-        options.addArguments("window-size=1920,1080");
-        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        // options.addArguments("window-size=1920,1080");
+        // options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         return new ChromeDriver(options);
 
     }

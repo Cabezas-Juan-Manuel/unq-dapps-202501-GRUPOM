@@ -28,12 +28,6 @@ public class WhoScoredService {
     private WhoScoredService() {}
 
     private static WebDriver configureWebDriver() {
-        String proxyHost = "219.93.101.63";
-        String proxyPort = "80";
-        Proxy proxy = new Proxy();
-        String proxyAddress = proxyHost + ":" + proxyPort;
-        proxy.setHttpProxy(proxyAddress);
-        proxy.setSslProxy(proxyAddress);
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
@@ -41,7 +35,6 @@ public class WhoScoredService {
         options.addArguments("--disable-gpu");
         options.addArguments("window-size=1920,1080");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        options.setProxy(proxy);
         return new ChromeDriver(options);
 
     }

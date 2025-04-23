@@ -60,6 +60,9 @@ RUN yum update -y && \
     chmod +x /usr/bin/chromedriver && \
     rm -rf chromedriver-linux64 chromedriver_linux64.zip
 
+ENV CHROME_BIN="/usr/bin/google-chrome"
+ENV PATH="/usr/bin:${PATH}"
+
 # Instalar ChromeDriver
 # 1. Obtener la última versión estable de Chrome for Testing (CfT)
 # 2. Descargar el ChromeDriver correspondiente para linux64

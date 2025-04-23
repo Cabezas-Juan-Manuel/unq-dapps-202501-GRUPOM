@@ -5,6 +5,7 @@ import ar.edu.unq.pronosticodeportivo.utils.AppLogger;
 import ar.edu.unq.pronosticodeportivo.utils.JsonParser;
 import ar.edu.unq.pronosticodeportivo.webservice.PronosticoDeportivoController;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -38,6 +39,12 @@ public class WhoScoredService {
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
+        options.addArguments("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
+        String chromeBinaryPath = Optional.ofNullable(System.getenv("CHROME_BIN"))
+                .orElse("/usr/bin/google-chrome");
+        options.setBinary(chromeBinaryPath);
+
+        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
         options.addArguments("window-size=1920,1080");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         return new ChromeDriver(options);

@@ -132,6 +132,8 @@ public class WhoScoredService {
 
         WebDriver driver = configureWebDriver();
 
+        System.out.println("aca no?");
+
         try {
             String baseURL = "https://whoscored.com";
             driver.get(baseURL + "/search/?t=" + text);

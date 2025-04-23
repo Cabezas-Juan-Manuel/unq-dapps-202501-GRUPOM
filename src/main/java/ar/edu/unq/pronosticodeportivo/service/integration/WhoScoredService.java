@@ -127,8 +127,6 @@ public class WhoScoredService {
         String METHOD = "getDataFromTableOnWeb";
         String CLASS = WhoScoredService.class.getName();
 
-        log.info("a");
-
         if (!searchBy.equals("player") && !searchBy.equals("team")) {
             AppLogger.error(CLASS, METHOD, "Invalid value for searchBy. Must be 'player' or 'team'");
             throw new IllegalArgumentException("Available arguments: player, team");
@@ -139,15 +137,9 @@ public class WhoScoredService {
             throw new IllegalArgumentException("Available arguments: team-stats, team-players");
         }
 
-        log.info("b");
-
         String jsonOutput = "";
 
-        log.info("c");
-
         Map<String, String> dicIds = generateMapNameId();
-
-        log.info("d");
 
         WebDriver driver = configureWebDriver();
 

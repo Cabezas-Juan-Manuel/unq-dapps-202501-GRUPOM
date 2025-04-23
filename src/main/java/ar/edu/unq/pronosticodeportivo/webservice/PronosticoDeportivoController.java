@@ -4,6 +4,8 @@ import ar.edu.unq.pronosticodeportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronosticodeportivo.model.Player;
 
 import ar.edu.unq.pronosticodeportivo.utils.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -20,6 +22,8 @@ public class PronosticoDeportivoController {
 
     @GetMapping("/team/{teamName}/players")
     public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
+        final Logger log = LoggerFactory.getLogger(PronosticoDeportivoController.class);
+        log.info("Si");
         try {
             List<Player> players = WhoScoredService.getPlayersFromTeam(teamName);
 
@@ -33,10 +37,5 @@ public class PronosticoDeportivoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.name(), "Internal server error", null, null));
         }
-    }
-
-    @GetMapping("/anda")
-    public String team(){
-        return "anda";
     }
 }

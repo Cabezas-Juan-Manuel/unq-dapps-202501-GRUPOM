@@ -3,6 +3,7 @@ package ar.edu.unq.pronosticodeportivo.service.integration;
 import ar.edu.unq.pronosticodeportivo.model.Player;
 import ar.edu.unq.pronosticodeportivo.utils.AppLogger;
 import ar.edu.unq.pronosticodeportivo.utils.JsonParser;
+import ar.edu.unq.pronosticodeportivo.webservice.PronosticoDeportivoController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -18,12 +19,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.Jsoup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
 @Service
 public class WhoScoredService {
+
+    static final Logger log = LoggerFactory.getLogger(PronosticoDeportivoController.class);
 
     private WhoScoredService() {}
 
@@ -132,7 +137,7 @@ public class WhoScoredService {
 
         WebDriver driver = configureWebDriver();
 
-        System.out.println("aca no?");
+        log.info("a");
 
         try {
             String baseURL = "https://whoscored.com";
@@ -147,7 +152,7 @@ public class WhoScoredService {
 
             Document soup = Jsoup.parse(pageSource);
 
-            System.out.println(soup);
+            log.info(String.valueOf(soup));
 
             Element table = getTableByTitle(soup, searchBy);
 

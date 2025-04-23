@@ -60,7 +60,8 @@ RUN yum update -y && \
     chmod +x /usr/bin/chromedriver && \
     rm -rf chromedriver-linux64 chromedriver_linux64.zip
 
-ENV CHROME_BIN="/usr/bin/google-chrome"
+# ENV CHROME_BIN="/usr/bin/google-chrome"
+ENV CHROME_BIN="/usr/bin/google-chrome-stable"
 ENV PATH="/usr/bin:${PATH}"
 
 # Instalar ChromeDriver

@@ -34,10 +34,14 @@ RUN yum update -y && \
     unzip chromedriver-linux64.zip && \
     mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
     chmod +x /usr/bin/chromedriver && \
-    ls -l /usr/bin/chromedriver && \
-    which chromedriver && \
-    chromedriver --version && \
-    rm -rf chromedriver-linux64 chromedriver_linux64.zip
+
+
+RUN ls -l /usr/bin
+
+    #ls -l /usr/bin/chromedriver
+    # && \ which chromedriver && \
+    # chromedriver --version && \
+    # rm -rf chromedriver-linux64 chromedriver_linux64.zip
 
 # ENV CHROME_BIN="/usr/bin/google-chrome"
 ENV CHROME_BIN="/usr/bin/google-chrome"

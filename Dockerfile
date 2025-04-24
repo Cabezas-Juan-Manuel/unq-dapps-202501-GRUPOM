@@ -1,5 +1,3 @@
-# --- Etapa de Construcción (Builder) ---
-# Usamos una imagen base con JDK 21 y Maven para compilar la aplicación
 FROM amazoncorretto:21 as builder
 
 WORKDIR /app
@@ -33,17 +31,13 @@ RUN yum update -y && \
     wget https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.84/linux64/chromedriver-linux64.zip && \
     unzip chromedriver-linux64.zip && \
     mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
-    chmod +x /usr/bin/chromedriver && \
+    chmod +x /usr/bin/chromedriver
 
+
+RUN echo "Esto es un print"
 
 RUN ls -l /usr/bin
 
-    #ls -l /usr/bin/chromedriver
-    # && \ which chromedriver && \
-    # chromedriver --version && \
-    # rm -rf chromedriver-linux64 chromedriver_linux64.zip
-
-# ENV CHROME_BIN="/usr/bin/google-chrome"
 ENV CHROME_BIN="/usr/bin/google-chrome"
 ENV PATH="/usr/bin:${PATH}"
 
@@ -57,4 +51,5 @@ COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/bin/sh", "-c", "ls -l /usr/bin && java -jar app.jar"]
+

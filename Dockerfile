@@ -2,7 +2,6 @@ FROM amazoncorretto:21 as builder
 
 WORKDIR /app
 
-USER root
 RUN yum update -y && yum install -y tar wget gzip && yum clean all
 
 
@@ -31,10 +30,6 @@ RUN yum update -y && \
     mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
     chmod +x /usr/bin/chromedriver
 
-
-RUN echo "Esto es un print"
-
-RUN ls -l /usr/bin
 
 ENV CHROME_BIN="/usr/bin/google-chrome"
 ENV PATH="/usr/bin:${PATH}"

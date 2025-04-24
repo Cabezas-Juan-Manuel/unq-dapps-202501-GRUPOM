@@ -1,11 +1,8 @@
 package ar.edu.unq.pronosticodeportivo.webservice;
 
 import ar.edu.unq.pronosticodeportivo.service.integration.WhoScoredService;
-import ar.edu.unq.pronosticodeportivo.model.Player;
 
 import ar.edu.unq.pronosticodeportivo.utils.ApiResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -21,9 +18,9 @@ import java.util.List;
 public class PronosticoDeportivoController {
 
     @GetMapping("/team/{teamName}/players")
-    public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
+    public ResponseEntity<ApiResponse<List<String>>> getPlayersFromTeam(@PathVariable String teamName) {
         try {
-            List<Player> players = WhoScoredService.getPlayersFromTeam(teamName);
+            List<String> players = WhoScoredService.fetchPlayers(teamName);
 
             if (players.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(HttpStatus.NOT_FOUND.name(), "Team players not found", null, null));

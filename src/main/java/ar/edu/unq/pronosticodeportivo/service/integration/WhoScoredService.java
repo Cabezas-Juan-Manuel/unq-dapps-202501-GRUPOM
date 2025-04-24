@@ -1,216 +1,102 @@
-package ar.edu.unq.pronosticodeportivo.service.integration;
+package ar.edu.unq.pronosticodeportivo.service.integration; // Asegúrate que el paquete sea el correcto para tu proyecto Java
 
-import ar.edu.unq.pronosticodeportivo.model.Player;
-import ar.edu.unq.pronosticodeportivo.utils.AppLogger;
-import ar.edu.unq.pronosticodeportivo.utils.JsonParser;
-import ar.edu.unq.pronosticodeportivo.webservice.PronosticoDeportivoController;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.openqa.selenium.By;
 import org.openqa.selenium.PageLoadStrategy;
-import org.openqa.selenium.Proxy;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.By;
-import java.util.*;
-import org.jsoup.select.Elements;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.Jsoup;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WhoScoredService {
 
-    static final Logger log = LoggerFactory.getLogger(PronosticoDeportivoController.class);
-
-    private WhoScoredService() {}
-
-    private static WebDriver configureWebDriver() {
+    /**
+     * Configura y crea una instancia de WebDriver para Chrome.
+     *
+     * @return Una instancia de WebDriver configurada.
+     */
+    public static WebDriver createDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--disable-gpu");
-        options.addArguments("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
-        String chromeBinaryPath = Optional.ofNullable(System.getenv("CHROME_BIN"))
-                .orElse("/usr/bin/google-chrome");
-        // options.setBinary(chromeBinaryPath);
+        options.addArguments(
+                "--headless=new",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
+        );
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+
+        // Equivalente a: setBinary(System.getenv("CHROME_BIN") ?: "/usr/bin/google-chrome")
+        // Si necesitas especificar el binario, descomenta la siguiente línea y ajusta la ruta si es necesario.
+        // String chromeBinaryPath = Optional.ofNullable(System.getenv("CHROME_BIN")).orElse("/usr/bin/google-chrome");
+        // options.setBinary(chromeBinaryPath);
+
         return new ChromeDriver(options);
     }
 
-    private static Map<String, String> generateMapNameId() {
-        Map<String, String> dictionary = new HashMap<>();
-        dictionary.put("team-stats", "top-team-stats-summary-grid");
-        dictionary.put("team-players", "top-player-stats-summary-grid");
-        dictionary.put("player-stats", "top-player-stats-summary-grid");
-        dictionary.put("player-latest-matches", "player-matches-table");
-        return dictionary;
-    }
 
-    private static Element getTableByTitle(Document doc, String title) {
-        Elements h2s = doc.select("h2");
-        for (Element h2 : h2s) {
-            if (h2.text().toLowerCase().contains(title.toLowerCase())) {
-                return h2.nextElementSibling();
-            }
-        }
-        return null;
-    }
-
-    private static Element getTableById(Document doc, String id) {
-        return doc.selectFirst("[id='" + id + "']");
-    }
-
-    private static List<Map<String, String>> getTableContent(Element table) {
-        Elements tableChildren = table.children();
-        List<Map<String, String>> data = new ArrayList<>();
-
-        if (tableChildren.size() != 2) {
-            return data;
-        }
-
-        Element header = tableChildren.get(0);
-        Element body = tableChildren.get(1);
-
-        Elements headerElements = Objects.requireNonNull(header.firstElementChild()).children();
-        List<String> headers = new ArrayList<>();
-        for (Element th : headerElements) {
-            headers.add(th.text().trim());
-        }
-
-        Elements bodyElements = body.children();
-        for (Element row : bodyElements) {
-            List<String> values = getValuesFromRow(row);
-            Map<String, String> rowDict = new HashMap<>();
-            for (int i = 0; i < headers.size(); i++) {
-                rowDict.put(headers.get(i), values.get(i));
-            }
-            data.add(rowDict);
-        }
-        return data;
-    }
-
-    private static List<String> getValuesFromRow(Element row) {
-        List<String> extractedTexts = new ArrayList<>();
-        Elements items = row.children();
-        for (Element item : items) {
-            String text = item.text().trim();
-            if (!text.isEmpty()) {
-                Element aChild = item.selectFirst("a");
-                if (aChild != null) {
-                    extractedTexts.add(aChild.text().trim());
-                } else if (text.matches("\\d+\\(\\d+\\)")) {
-                    String[] parts = text.split("[() ]+");
-                    int total = Integer.parseInt(parts[0]) + Integer.parseInt(parts[1]);
-                    extractedTexts.add(String.valueOf(total));
-                } else {
-                    extractedTexts.add(text);
-                }
-            }
-        }
-        return extractedTexts;
-    }
-
-    private static String getDataFromTableOnWeb(String text, String searchBy, String tableBy) {
-        String METHOD = "getDataFromTableOnWeb";
-        String CLASS = WhoScoredService.class.getName();
-
-        if (!searchBy.equals("player") && !searchBy.equals("team")) {
-            AppLogger.error(CLASS, METHOD, "Invalid value for searchBy. Must be 'player' or 'team'");
-            throw new IllegalArgumentException("Available arguments: player, team");
-        }
-        if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
-                !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
-            AppLogger.error(CLASS, METHOD, "Invalid value for tableBy");
-            throw new IllegalArgumentException("Available arguments: team-stats, team-players");
-        }
-
-        String jsonOutput = "";
-
-        Map<String, String> dicIds = generateMapNameId();
-
-        WebDriver driver = configureWebDriver();
-
-        log.info("e");
+    public static List<String> fetchPlayers(String teamName) {
+        WebDriver driver = createDriver();
+        String baseUrl = "https://es.whoscored.com";
+        List<String> teamPlayers; // Declarar fuera del try para que esté en el scope del finally
 
         try {
-            String baseURL = "https://whoscored.com";
-            driver.get(baseURL + "/search/?t=" + text);
+            // Navegar a la página principal de la liga
+            driver.get(baseUrl + "/regions/11/tournaments/68/seasons/10573/argentina-liga-profesional");
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120)); // Aumentar timeout si es necesario
 
-            String pageSource = driver.getPageSource();
+            // Esperar y encontrar la tabla de posiciones
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.className("standings")));
+            WebElement teamsTable = driver.findElement(By.className("standings"));
 
-            if (pageSource == null) {
-                AppLogger.error(CLASS, METHOD, "Page source is empty");
-                return jsonOutput;
+            // Esperar y obtener los enlaces de los equipos
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className("team-link")));
+            List<WebElement> links = teamsTable.findElements(By.className("team-link"));
+
+            // Encontrar el enlace del equipo deseado (ignorando mayúsculas/minúsculas y buscando coincidencias parciales)
+            String targetLink = links.stream()
+                    .filter(link -> link.getText().equalsIgnoreCase(teamName) || link.getText().toLowerCase().contains(teamName.toLowerCase()))
+                    .findFirst()
+                    .map(link -> link.getAttribute("href"))
+                    .orElseThrow(() -> new RuntimeException(teamName + " not found")); // team not found
+
+            // Navegar a la página del equipo
+            driver.get(targetLink);
+
+            // Esperar y encontrar la tabla de estadísticas de jugadores
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("player-table-statistics-body")));
+            WebElement playersTable = driver.findElement(By.id("player-table-statistics-body"));
+
+            // Esperar a que los elementos de los jugadores estén presentes
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className("iconize")));
+
+            // Extraer los nombres de los jugadores, filtrando los vacíos
+            teamPlayers = playersTable.findElements(By.className("iconize"))
+                    .stream()
+                    .map(WebElement::getText) // Obtener el texto de cada elemento
+                    .filter(text -> text != null && !text.isBlank()) // Filtrar nulos y vacíos/blancos
+                    .collect(Collectors.toList()); // Recolectar en una lista
+
+            // Verificar si se encontraron jugadores
+            if (teamPlayers.isEmpty()) {
+                throw new RuntimeException("Players of " + teamName + " not found");
             }
 
-            Document soup = Jsoup.parse(pageSource);
-
-            log.info(String.valueOf(soup));
-
-            Element table = getTableByTitle(soup, searchBy);
-
-            if (table == null) {
-                AppLogger.error(CLASS, METHOD, "Table by title not found");
-                return jsonOutput;
-            }
-
-            Element linkElement = table.selectFirst("a[href]");
-            if (linkElement == null) {
-                AppLogger.error(CLASS, METHOD, "No link found in results table");
-                return jsonOutput;
-            }
-            String relativeURL = linkElement.attr("href");
-            String fullURL = baseURL + relativeURL;
-            driver.get(fullURL);
-
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(tableBy))));
-
-            pageSource = driver.getPageSource();
-            if (pageSource == null) {
-                AppLogger.error(CLASS, METHOD, String.format("Page source is empty for search term: %s", text));
-                return jsonOutput;
-            }
-
-            soup = Jsoup.parse(pageSource);
-
-
-            Element dataTable = getTableById(soup, dicIds.get(tableBy));
-            if (dataTable == null) {
-                AppLogger.error(CLASS, METHOD, "Table by id not found");
-                return jsonOutput;
-            }
-
-            List<Map<String, String>> data = getTableContent(dataTable);
-            if (data.isEmpty()) {
-                AppLogger.error(METHOD, CLASS, "Table by title not found");
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            jsonOutput = mapper.writeValueAsString(data);
-        } catch (JsonProcessingException e) {
-            AppLogger.error(CLASS, METHOD, "Object mapper error");
-            throw new IllegalStateException(e);
         } finally {
-            driver.quit();
+            // Asegurarse de cerrar el driver incluso si ocurre una excepción
+            if (driver != null) {
+                driver.quit();
+            }
         }
-        return jsonOutput;
-    }
 
-    public static List<Player> getPlayersFromTeam(String teamName) {
-        String jsonString = getDataFromTableOnWeb(teamName, "team", "team-players");
-        if (jsonString == null) {
-            return new ArrayList<>();
-        }
-        return JsonParser.fromJsonToPlayerList(jsonString);
+        return teamPlayers;
     }
 }

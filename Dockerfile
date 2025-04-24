@@ -43,9 +43,6 @@ ENV PATH="/usr/bin:${PATH}"
 
 WORKDIR /app
 
-FROM amazoncorretto:21
-
-
 COPY --from=builder /app/target/*.jar app.jar
 
 

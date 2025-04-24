@@ -1,5 +1,7 @@
 package ar.edu.unq.pronosticodeportivo.service.integration; // Asegúrate que el paquete sea el correcto para tu proyecto Java
 
+import ar.edu.unq.pronosticodeportivo.webservice.PronosticoDeportivoController;
+import org.jsoup.Jsoup;
 import org.openqa.selenium.By;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
@@ -8,6 +10,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -17,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class WhoScoredService {
+
+    static final Logger log = LoggerFactory.getLogger(PronosticoDeportivoController.class);
 
     /**
      * Configura y crea una instancia de WebDriver para Chrome.
@@ -52,7 +59,12 @@ public class WhoScoredService {
             // Navegar a la página principal de la liga
             driver.get(baseUrl + "/regions/11/tournaments/68/seasons/10573/argentina-liga-profesional");
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120)); // Aumentar timeout si es necesario
-
+            String pageSource = driver.getPageSource();
+            if(pageSource == null){
+                throw new RuntimeException("Page source is null");
+            }
+            Document soup = Jsoup.parse(pageSource);
+            log.info(String.valueOf(soup));
             // Esperar y encontrar la tabla de posiciones
             wait.until(ExpectedConditions.presenceOfElementLocated(By.className("standings")));
             WebElement teamsTable = driver.findElement(By.className("standings"));

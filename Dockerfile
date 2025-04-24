@@ -20,8 +20,6 @@ RUN ./mvnw package -DskipTests
 # Usamos una imagen base con JRE 21
 FROM amazoncorretto:21
 
-WORKDIR /app
-
 
 RUN yum update -y && \
     yum install -y wget unzip libX11 maven && \
@@ -44,7 +42,6 @@ ENV PATH="/usr/bin:${PATH}"
 WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
-
 
 EXPOSE 8080
 

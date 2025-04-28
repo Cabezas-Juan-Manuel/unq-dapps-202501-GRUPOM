@@ -13,7 +13,9 @@ permissions:
 jobs:
   test-and-tag:
     runs-on: ubuntu-latest
-
+    
+    environment: Workflow
+    
     container:
       image: maven:3.9-eclipse-temurin-21
 

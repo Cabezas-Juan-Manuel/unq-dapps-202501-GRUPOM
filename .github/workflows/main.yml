@@ -45,8 +45,8 @@ jobs:
 
       - name: Calculate and Push Next Checkpoint Tag
         if: github.event_name == 'push'  && success()
-          cd $GITHUB_WORKSPACE
         run: |
+          cd $GITHUB_WORKSPACE
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
 

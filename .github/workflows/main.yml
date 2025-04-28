@@ -43,7 +43,7 @@ jobs:
         run: mvn -B test
 
   tag:
-    needs: test # Este job depende del job anterior (solo se ejecuta si 'test' tiene éxito)
+    needs: test 
     runs-on: ubuntu-latest
 
     steps:
@@ -71,4 +71,14 @@ jobs:
 
           git tag $NEW_TAG
           git push origin $NEW_TAG
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: "Release for ${{ env.NEW_TAG }}"
+          draft: false
+          prerelease: false
 

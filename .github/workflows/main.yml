@@ -2,9 +2,9 @@ name: Test and Tag on Success
 
 on:
   push:
-    branches: [ "feature/fix-security" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "feature/fix-security" ]
+    branches: [ "main" ]
 
 permissions:
   contents: write

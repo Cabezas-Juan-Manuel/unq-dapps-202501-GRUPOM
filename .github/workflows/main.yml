@@ -84,4 +84,12 @@ jobs:
           release_name: "Release for ${{ env.NEW_TAG }}"
           draft: false
           prerelease: false
+  deploy:
+    needs: [test, tag]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          curl -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
+
 

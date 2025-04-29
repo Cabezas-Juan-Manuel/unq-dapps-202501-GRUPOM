@@ -1,43 +1,67 @@
-FROM amazoncorretto:21 as builder
+# --- Etapa de Construcción (Builder) ---
+# Usamos una imagen base con JDK 21 y Maven para compilar la aplicación
+FROM eclipse-temurin:21-jdk-jammy as builder
 
 WORKDIR /app
-
-RUN yum update -y && yum install -y tar wget gzip && yum clean all
-
 
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+
 RUN chmod +x mvnw
-COPY pom.xml ./
 RUN ./mvnw dependency:go-offline
 
 COPY src ./src
-
 RUN ./mvnw package -DskipTests
 
 # --- Etapa Final (Runtime) ---
-FROM amazoncorretto:21
-
-
-RUN yum update -y && \
-    yum install -y wget unzip libX11 maven && \
-    wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
-    yum install -y ./google-chrome-stable_current_x86_64.rpm && \
-    rm google-chrome-stable_current_x86_64.rpm && \
-    wget https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.84/linux64/chromedriver-linux64.zip && \
-    unzip chromedriver-linux64.zip && \
-    mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
-    chmod +x /usr/bin/chromedriver
-
-
-ENV CHROME_BIN="/usr/bin/google-chrome"
-ENV PATH="/usr/bin:${PATH}"
+# Usamos una imagen base con JRE 21
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
+
+USER root
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    grep \
+    jq \
+    fonts-liberation \
+    libu2f-udev \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y google-chrome-stable --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN CHROME_DRIVER_VERSION=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json | jq -r '.channels.Stable.version') && \
+    echo "Detected ChromeDriver Version: $CHROME_DRIVER_VERSION" && \
+    # Añade una comprobación para asegurarte de que la versión no está vacía
+    if [ -z "$CHROME_DRIVER_VERSION" ]; then echo "Error: ChromeDriver version not found."; exit 1; fi && \
+    # Guarda la versión en un archivo temporal para usarla en el siguiente paso
+    echo $CHROME_DRIVER_VERSION > /tmp/chrome_driver_version.txt
+
+RUN CHROME_DRIVER_VERSION=$(cat /tmp/chrome_driver_version.txt) && \
+    echo "Downloading ChromeDriver Version: $CHROME_DRIVER_VERSION" && \
+    wget -q --continue -P /tmp "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_DRIVER_VERSION}/linux64/chromedriver-linux64.zip"
+
+
+RUN unzip /tmp/chromedriver-linux64.zip -d /tmp && \
+    mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    chown root:root /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/chromedriver && \
+    # Limpieza
+    rm -rf /tmp/chromedriver* /tmp/chrome_driver_version.txt
+
+#
+WORKDIR /app
+
 
 COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java -jar app.jar"]
-
+ENTRYPOINT ["java", "-jar", "app.jar"]

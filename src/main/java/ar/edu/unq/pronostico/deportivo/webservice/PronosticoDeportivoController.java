@@ -7,10 +7,7 @@ import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,5 +37,12 @@ public class PronosticoDeportivoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.name(), "Internal server error", null, null));
         }
+    }
+
+    @GetMapping("playerRating")
+    public ResponseEntity<Player> playerRating(@RequestParam String playerName) {
+        Player player = whoScoredService.getPlayerStatics(playerName);
+        //playerService
+        return ResponseEntity.status(HttpStatus.OK).body(player);
     }
 }

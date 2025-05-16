@@ -4,6 +4,8 @@ import ar.edu.unq.pronostico.deportivo.model.Player;
 import ar.edu.unq.pronostico.deportivo.utils.AppLogger;
 import ar.edu.unq.pronostico.deportivo.utils.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -197,5 +199,67 @@ public class WhoScoredService {
             return new ArrayList<>();
         }
         return JsonParser.fromJsonToPlayerList(jsonString);
+    }
+
+
+    public Player getPlayerStatics(String playerName) {
+        String jsonString = getDataFromPlayerOnWeb(playerName);
+        return JsonParser.fromJsonToPlayer(jsonString);
+    }
+
+
+    private String getDataFromPlayerOnWeb(String playerName) {
+        String playerStatsTableId = "player-table-statistics-body";
+        String divPath = "div.col12-lg-6.col12-m-6.col12-s-6.col12-xs-12";
+        WebDriver driver = configureWebDriver();
+        List<Document> playerInfoANdStats = getPagesForPlayer(playerName, driver);
+        Elements playerInfoTable = playerInfoANdStats.get(0).select(divPath);
+        Element playerDefensiveStatsTable = getTableById(playerInfoANdStats.get(1), playerStatsTableId);
+        Element playerOffensiveStatsTable = getTableById(playerInfoANdStats.get(2), playerStatsTableId);
+        String jsonPlayerData =  transformTablesToJson(playerDefensiveStatsTable, playerOffensiveStatsTable, playerInfoTable);
+        return "new Player()";
+    }
+
+    private String transformTablesToJson(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable) {
+        String playerJson = new JSONObject();
+        List<Map<String, String>> defensiveStats = getTableContent(playerDefensiveStatsTable);
+        List<Map<String, String>> offensiveStats = getTableContent(playerDefensiveStatsTable);
+        return null;
+    }
+
+    private  List<Document> getPagesForPlayer(String text, WebDriver driver) {
+        String cssToOffensiveStatsPage = "#player-tournament-stats-options > li:nth-child(3) > a";
+        String cssToDefensiveStatsPage = "#player-tournament-stats-options > li:nth-child(2) > a";
+        List<Document> playerInfoAndStats = new ArrayList<>();
+        goToPlayersPage(text, driver);
+        addPageToList(driver, null, playerInfoAndStats);
+        addPageToList(driver, cssToOffensiveStatsPage, playerInfoAndStats);
+        addPageToList(driver, cssToDefensiveStatsPage, playerInfoAndStats);
+
+        return playerInfoAndStats;
+
+    }
+
+    private void goToPlayersPage(String player, WebDriver driver) {
+        String baseURL = "https://whoscored.com";
+        driver.get(baseURL + "/search/?t=" + player);
+        String pageSource = driver.getPageSource();
+        Document document = Jsoup.parse(pageSource);
+        Element table = getTableByTitle(document, "Players:");
+        Element linkElement = table.selectFirst("a[href]");
+        String relativeURL = linkElement.attr("href");
+        String fullURL = baseURL + relativeURL;
+        driver.get(fullURL);
+    }
+
+    private static void addPageToList(WebDriver driver, String cssSelector, List<Document> list) {
+        if (cssSelector != null){
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(cssSelector)));
+            element.click();
+        }
+        String pageSource = driver.getPageSource();
+        Document document = Jsoup.parse(pageSource);
+        list.add(document);
     }
 }

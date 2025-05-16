@@ -40,4 +40,23 @@ public class JsonParser {
 
         return playerList;
     }
+
+    public static Player fromJsonToPlayer(String jsonString) {
+        Player player = new Player();
+        try {
+            JsonNode rootNode = objectMapper.readTree(jsonString);
+            for (JsonNode node : rootNode) {
+                player.setName(node.get("Player").asText());
+                player.setMatchesPlayed(node.get("Apps").asInt());
+                player.setGoals(node.get("Goals").asInt());
+                player.setAssist(node.get("Assists").asInt());
+                player.setRating(node.get("Rating").asDouble());
+                return player;
+            }
+
+        } catch (JsonProcessingException e) {
+            AppLogger.error("JsonParser", e.getMessage(), "Error to process json");
+        }
+        return player;
+    }
 }

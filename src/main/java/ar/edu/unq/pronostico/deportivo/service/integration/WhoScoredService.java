@@ -67,7 +67,7 @@ public class WhoScoredService {
         List<Map<String, String>> data = new ArrayList<>();
 
         if (tableChildren.size() != 2) {
-            return data;
+            return manageTableWithOnlyBody(tableChildren);
         }
 
         Element header = tableChildren.get(0);
@@ -90,6 +90,32 @@ public class WhoScoredService {
         }
         return data;
     }
+
+    private List<Map<String, String>> manageTableWithOnlyBody(Elements tableRows) {
+        List<Map<String, String>> data = new ArrayList<>();
+
+        for (Element row : tableRows) {
+            Elements cells = row.select("td");
+            Map<String, String> rowMap = new HashMap<>();
+
+            for (Element cell : cells) {
+                String key = cell.className().trim();  // Puede ser vacío si no tiene class
+                String value = cell.text().trim();
+
+                // Evitar sobrescribir si hay claves duplicadas vacías
+                if (key.isEmpty()) {
+                    key = "column_" + rowMap.size();  // Asignar una clave temporal
+                }
+
+                rowMap.put(key, value);
+            }
+
+            data.add(rowMap);
+        }
+
+        return data;
+    }
+
 
     private List<String> getValuesFromRow(Element row) {
         List<String> extractedTexts = new ArrayList<>();
@@ -161,7 +187,7 @@ public class WhoScoredService {
             String fullURL = baseURL + relativeURL;
             driver.get(fullURL);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(40));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(tableBy))));
 
             pageSource = driver.getPageSource();
@@ -208,39 +234,97 @@ public class WhoScoredService {
     }
 
 
-    private String getDataFromPlayerOnWeb(String playerName) {
-        String playerStatsTableId = "player-table-statistics-body";
+    private String getDataFromPlayerOnWeb(String playerName){
+        String playerStatsTableId = "top-player-stats-summary-grid";
+        String defensiveTableId = "player-tournament-stats-defensive";
+        String offensiveTableId = "player-tournament-stats-offensive";
         String divPath = "div.col12-lg-6.col12-m-6.col12-s-6.col12-xs-12";
+        String cssToOffensiveStatsPage = "#player-tournament-stats-options > li:nth-child(3) > a";
+        String cssToDefensiveStatsPage = "#player-tournament-stats-options li:nth-child(2) a";
         WebDriver driver = configureWebDriver();
-        List<Document> playerInfoANdStats = getPagesForPlayer(playerName, driver);
-        Elements playerInfoTable = playerInfoANdStats.get(0).select(divPath);
-        Element playerDefensiveStatsTable = getTableById(playerInfoANdStats.get(1), playerStatsTableId);
-        Element playerOffensiveStatsTable = getTableById(playerInfoANdStats.get(2), playerStatsTableId);
-        String jsonPlayerData =  transformTablesToJson(playerDefensiveStatsTable, playerOffensiveStatsTable, playerInfoTable);
+
+        Document playersPage = goToPlayersPage(playerName, driver);
+
+        Elements playerInfoTable = playersPage.select(divPath);
+        Element defensiveStatsTable = getDinamicTable(driver, cssToDefensiveStatsPage, defensiveTableId);
+        System.out.println("selenium la concha de tu madre");
+        Element offensiveStatsTable = getDinamicTable(driver, cssToOffensiveStatsPage, offensiveTableId);
+        String jsonPlayerData =  transformTablesToJson(defensiveStatsTable, offensiveStatsTable, playerInfoTable);
         return "new Player()";
     }
 
-    private String transformTablesToJson(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable) {
-        String playerJson = new JSONObject();
+    private Element getDinamicTable(WebDriver driver, String cssPathToTab, String tableWrapperId) {
+        driver.findElement(By.cssSelector(cssPathToTab)).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // Mantén o ajusta este timeout
+
+        // Espera a que el div contenedor esté presente
+        WebElement tableWrapperDiv = wait.until(ExpectedConditions.presenceOfElementLocated(By.id(tableWrapperId)));
+
+        // Espera a que el elemento <table> anidado esté presente y obtén una referencia a l
+        WebElement nestedTableWebElement;
+        try {
+            nestedTableWebElement = wait.until(
+                    ExpectedConditions.presenceOfNestedElementLocatedBy(tableWrapperDiv, By.tagName("table"))
+            );
+        } catch (Exception e) {
+            AppLogger.warn(WhoScoredService.class.getName(), "getDinamicTable", "Timeout esperando la tabla anidada en: " + tableWrapperId + ". Error: " + e.getMessage());
+            // System.out.println("DEBUG: No se encontró la tabla anidada en " + tableWrapperId);
+            return null; // Retorna null si la tabla no se encuentra
+        }
+
+        // Una vez que Selenium confirma que el WebElement de la tabla existe, obtén su outerHTML.
+        // outerHTML incluye el propio tag <table> y su contenido.
+        String tableHtml = nestedTableWebElement.getAttribute("outerHTML");
+
+        if (tableHtml == null || tableHtml.isEmpty()) {
+            AppLogger.warn(WhoScoredService.class.getName(), "getDinamicTable", "outerHTML de la tabla anidada está vacío para: " + tableWrapperId);
+            // System.out.println("DEBUG: outerHTML de la tabla anidada estaba vacío en " + tableWrapperId);
+            return null;
+        }
+
+        Document doc = Jsoup.parse(tableHtml);
+        // Como parseamos el outerHTML de la tabla, el elemento <table> debería ser el primer hijo del body
+        // o podemos seleccionarlo directamente. selectFirst("table") es más seguro.
+        Element tableElement = doc.selectFirst("table");
+
+        // if (tableElement == null) {
+        //     System.out.println("DEBUG: Jsoup no pudo parsear la tabla desde su outerHTML para " + tableWrapperId);
+        //     System.out.println("DEBUG: HTML de la tabla era: " + tableHtml.substring(0, Math.min(tableHtml.length(), 300)));
+        // }
+        return tableElement;
+    }
+
+    private String transformTablesToJson(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable){
+        String playerInfo = getContentFromDiv(playerInfoTable);
         List<Map<String, String>> defensiveStats = getTableContent(playerDefensiveStatsTable);
-        List<Map<String, String>> offensiveStats = getTableContent(playerDefensiveStatsTable);
-        return null;
+        List<Map<String, String>> offensiveStats = getTableContent(playerOffensiveStatsTable);
+        String playerDataForPlayersCreation = "";
+        return playerDataForPlayersCreation;
     }
 
-    private  List<Document> getPagesForPlayer(String text, WebDriver driver) {
-        String cssToOffensiveStatsPage = "#player-tournament-stats-options > li:nth-child(3) > a";
-        String cssToDefensiveStatsPage = "#player-tournament-stats-options > li:nth-child(2) > a";
-        List<Document> playerInfoAndStats = new ArrayList<>();
-        goToPlayersPage(text, driver);
-        addPageToList(driver, null, playerInfoAndStats);
-        addPageToList(driver, cssToOffensiveStatsPage, playerInfoAndStats);
-        addPageToList(driver, cssToDefensiveStatsPage, playerInfoAndStats);
+    private String getContentFromDiv(Elements divPath){
+        Map<String, String> playersInfo = new HashMap<>();
 
-        return playerInfoAndStats;
+        for (Element row : divPath) {
+            Element labelSpan = row.getElementsByTag("span").first();
+            if (labelSpan != null) {
+                String key = labelSpan.text().trim();
+                String value = row.text().replace(labelSpan.text(), "").trim();
+                playersInfo.put(key, value);
+                }
+            }
+        ObjectMapper mapper = new ObjectMapper();
 
+        try{
+            return mapper.writeValueAsString(playersInfo);
+        } catch (JsonProcessingException e){
+            throw  new RuntimeException(e.getMessage());
+        }
     }
 
-    private void goToPlayersPage(String player, WebDriver driver) {
+
+
+    private Document goToPlayersPage(String player, WebDriver driver) {
         String baseURL = "https://whoscored.com";
         driver.get(baseURL + "/search/?t=" + player);
         String pageSource = driver.getPageSource();
@@ -250,6 +334,7 @@ public class WhoScoredService {
         String relativeURL = linkElement.attr("href");
         String fullURL = baseURL + relativeURL;
         driver.get(fullURL);
+        return Jsoup.parse(driver.getPageSource());
     }
 
     private static void addPageToList(WebDriver driver, String cssSelector, List<Document> list) {
@@ -260,6 +345,8 @@ public class WhoScoredService {
         }
         String pageSource = driver.getPageSource();
         Document document = Jsoup.parse(pageSource);
+        String hash = Integer.toHexString(pageSource.hashCode());
+        System.out.println("Page hash: " + hash);
         list.add(document);
     }
 }

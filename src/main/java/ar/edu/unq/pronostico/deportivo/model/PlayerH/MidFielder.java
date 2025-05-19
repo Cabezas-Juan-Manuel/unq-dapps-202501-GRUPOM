@@ -1,0 +1,29 @@
+package ar.edu.unq.pronostico.deportivo.model.PlayerH;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Map;
+@Getter
+@Setter
+@AllArgsConstructor
+public class MidFielder extends Player {
+    private Map<String, String> defensivePerformanceStatistics;
+    private Map<String, String> offensivePerformanceStatistics;
+
+    public MidFielder(String name, String age, String team, String nationality, Map<String, String> defensivePerformanceStatistics, Map<String, String> offensivePerformanceStatistics){
+        super(name, age, team, nationality);
+        this.defensivePerformanceStatistics = defensivePerformanceStatistics;
+        this.offensivePerformanceStatistics = offensivePerformanceStatistics;
+    }
+
+    @Override
+    public Double calculatePerformance() {
+        double clear = Double.parseDouble(this.defensivePerformanceStatistics.get("Clear"));
+        double fouls = Double.parseDouble(this.defensivePerformanceStatistics.get("Fouls"));
+        double tackles = Double.parseDouble(this.defensivePerformanceStatistics.get("Tackles"));
+        int assists = Integer.parseInt(this.offensivePerformanceStatistics.get("Assists"));
+        return clear + tackles + (assists / 2) - fouls;
+    }
+}

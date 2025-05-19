@@ -1,9 +1,10 @@
 package ar.edu.unq.pronostico.deportivo.service.integration;
 
-import ar.edu.unq.pronostico.deportivo.model.Player;
+import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
 import ar.edu.unq.pronostico.deportivo.utils.AppLogger;
 import ar.edu.unq.pronostico.deportivo.utils.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -65,7 +66,7 @@ public class WhoScoredService {
         List<Map<String, String>> data = new ArrayList<>();
 
         if (tableChildren.size() != 2) {
-            return data;
+            return manageTableWithOnlyBody(tableChildren);
         }
 
         Element header = tableChildren.get(0);
@@ -88,6 +89,32 @@ public class WhoScoredService {
         }
         return data;
     }
+
+    private List<Map<String, String>> manageTableWithOnlyBody(Elements tableRows) {
+        List<Map<String, String>> data = new ArrayList<>();
+
+        for (Element row : tableRows) {
+            Elements cells = row.select("td");
+            Map<String, String> rowMap = new HashMap<>();
+
+            for (Element cell : cells) {
+                String key = cell.className().trim();  // Puede ser vacío si no tiene class
+                String value = cell.text().trim();
+
+                // Evitar sobrescribir si hay claves duplicadas vacías
+                if (key.isEmpty()) {
+                    key = "column_" + rowMap.size();  // Asignar una clave temporal
+                }
+
+                rowMap.put(key, value);
+            }
+
+            data.add(rowMap);
+        }
+
+        return data;
+    }
+
 
     private List<String> getValuesFromRow(Element row) {
         List<String> extractedTexts = new ArrayList<>();
@@ -159,7 +186,7 @@ public class WhoScoredService {
             String fullURL = baseURL + relativeURL;
             driver.get(fullURL);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(40));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(dicIds.get(tableBy))));
 
             pageSource = driver.getPageSource();
@@ -191,11 +218,113 @@ public class WhoScoredService {
         return jsonOutput;
     }
 
-    public List<Player> getPlayersFromTeam(String teamName) {
+    public List<PlayerForTeam> getPlayersFromTeam(String teamName) {
         String jsonString = getDataFromTableOnWeb(teamName, "team", "team-players");
         if (jsonString == null) {
             return new ArrayList<>();
         }
         return JsonParser.fromJsonToPlayerList(jsonString);
+    }
+
+
+    public List<Map<String, String>> getPlayerStatics(String playerName) {
+        return getDataFromPlayerOnWeb(playerName);
+    }
+
+
+    private List<Map<String, String>> getDataFromPlayerOnWeb(String playerName){
+        String defensiveTableId = "player-tournament-stats-defensive";
+        String offensiveTableId = "player-tournament-stats-offensive";
+        String divPath = "div.col12-lg-6.col12-m-6.col12-s-6.col12-xs-12";
+        String cssToOffensiveStatsPage = "#player-tournament-stats-options > li:nth-child(3) > a";
+        String cssToDefensiveStatsPage = "#player-tournament-stats-options li:nth-child(2) a";
+        WebDriver driver = configureWebDriver();
+
+        Document playersPage = goToPlayersPage(playerName, driver);
+
+        Elements playerInfoTable = playersPage.select(divPath);
+        Element defensiveStatsTable = getDinamicTable(driver, cssToDefensiveStatsPage, defensiveTableId);
+        Element offensiveStatsTable = getDinamicTable(driver, cssToOffensiveStatsPage, offensiveTableId);
+        return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, playerInfoTable);
+    }
+
+    private Element getDinamicTable(WebDriver driver, String cssPathToTab, String tableWrapperId) {
+        driver.findElement(By.cssSelector(cssPathToTab)).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(40));
+
+
+        WebElement tableWrapperDiv = wait.until(ExpectedConditions.presenceOfElementLocated(By.id(tableWrapperId)));
+
+
+        WebElement nestedTableWebElement;
+        try {
+            nestedTableWebElement = wait.until(
+                    ExpectedConditions.presenceOfNestedElementLocatedBy(tableWrapperDiv, By.tagName("table"))
+            );
+        } catch (Exception e) {
+            AppLogger.warn(WhoScoredService.class.getName(), "getDinamicTable", "Timeout esperando la tabla anidada en: " + tableWrapperId + ". Error: " + e.getMessage());
+
+            return null;
+        }
+
+        String tableHtml = nestedTableWebElement.getAttribute("outerHTML");
+
+        if (tableHtml == null || tableHtml.isEmpty()) {
+            AppLogger.warn(WhoScoredService.class.getName(), "getDinamicTable", "outerHTML de la tabla anidada está vacío para: " + tableWrapperId);
+            return null;
+        }
+
+        Document doc = Jsoup.parse(tableHtml);
+        Element tableElement = doc.selectFirst("table");
+
+        return tableElement;
+    }
+
+
+    public  List<Map<String, String>> transformTablesToMap(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable) {
+
+        List<Map<String, String>> playerTotalData = new ArrayList<>();
+
+        Map<String, String> playerInfo = getContentFromDiv(playerInfoTable);
+        List<Map<String, String>> allDefensiveStats = getTableContent(playerDefensiveStatsTable);
+        List<Map<String, String>> allOffensiveStats = getTableContent(playerOffensiveStatsTable);
+
+        Map<String, String> averageDefensiveStats = allDefensiveStats.getLast();
+        Map <String, String> averageOffensiveStats = allOffensiveStats.getLast();
+
+        playerTotalData.add(playerInfo);
+        playerTotalData.add(averageOffensiveStats);
+        playerTotalData.add(averageDefensiveStats);
+
+        return playerTotalData;
+
+    }
+
+    private Map<String, String> getContentFromDiv(Elements divPath) {
+        Map<String, String> playersInfo = new HashMap<>();
+
+        for (Element row : divPath) {
+            Element labelSpan = row.getElementsByTag("span").first();
+            if (labelSpan != null) {
+                String key = labelSpan.text().trim();
+                String value = row.text().replace(labelSpan.text(), "").trim();
+                playersInfo.put(key, value);
+            }
+        }
+
+        return playersInfo;
+    }
+
+    private Document goToPlayersPage(String player, WebDriver driver) {
+        String baseURL = "https://whoscored.com";
+        driver.get(baseURL + "/search/?t=" + player);
+        String pageSource = driver.getPageSource();
+        Document document = Jsoup.parse(pageSource);
+        Element table = getTableByTitle(document, "Players:");
+        Element linkElement = table.selectFirst("a[href]");
+        String relativeURL = linkElement.attr("href");
+        String fullURL = baseURL + relativeURL;
+        driver.get(fullURL);
+        return Jsoup.parse(driver.getPageSource());
     }
 }

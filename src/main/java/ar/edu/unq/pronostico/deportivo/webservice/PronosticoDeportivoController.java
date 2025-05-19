@@ -1,21 +1,28 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
-import ar.edu.unq.pronostico.deportivo.model.Player;
+import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
+import ar.edu.unq.pronostico.deportivo.model.PlayerH.Player;
+import ar.edu.unq.pronostico.deportivo.service.PlayerService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
+import ar.edu.unq.pronostico.deportivo.webservice.Dtos.PlayerWithPerformanceScoreDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/pronosticoDeportivo")
 public class PronosticoDeportivoController {
 
     private final WhoScoredService whoScoredService;
+    @Autowired
+    private PlayerService playerService;
 
     public PronosticoDeportivoController(WhoScoredService whoScoredService) {
         this.whoScoredService = whoScoredService;
@@ -23,9 +30,9 @@ public class PronosticoDeportivoController {
 
 
     @GetMapping("/team/{teamName}/players")
-    public ResponseEntity<ApiResponse<List<Player>>> getPlayersFromTeam(@PathVariable String teamName) {
+    public ResponseEntity<ApiResponse<List<PlayerForTeam>>> getPlayersFromTeam(@PathVariable String teamName) {
         try {
-            List<Player> players = whoScoredService.getPlayersFromTeam(teamName);
+            List<PlayerForTeam> players = whoScoredService.getPlayersFromTeam(teamName);
 
             if (players.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(HttpStatus.NOT_FOUND.name(), "Team players not found", null, null));
@@ -39,10 +46,13 @@ public class PronosticoDeportivoController {
         }
     }
 
-    @GetMapping("playerRating")
-    public ResponseEntity<Player> playerRating(@RequestParam String playerName) {
-        Player player = whoScoredService.getPlayerStatics(playerName);
-        //playerService
-        return ResponseEntity.status(HttpStatus.OK).body(player);
+    @GetMapping("playerPerformance")
+    public ResponseEntity<PlayerWithPerformanceScoreDto> playerPerformance(@RequestParam String playerName) {
+        List<Map<String, String>> playerData = whoScoredService.getPlayerStatics(playerName);
+        Player player = playerService.makePlayerFromData(playerData);
+        Double performanceScore = playerService.getPerformanceForPlayer(player);
+        PlayerWithPerformanceScoreDto playerDto = new PlayerWithPerformanceScoreDto(player.getName(), player.getAge(), player.getNationality(), player
+                .getTeam(), performanceScore.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(playerDto);
     }
 }

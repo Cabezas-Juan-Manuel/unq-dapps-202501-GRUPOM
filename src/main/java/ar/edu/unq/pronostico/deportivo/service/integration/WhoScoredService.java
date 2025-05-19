@@ -1,10 +1,9 @@
 package ar.edu.unq.pronostico.deportivo.service.integration;
 
-import ar.edu.unq.pronostico.deportivo.model.Player;
+import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
 import ar.edu.unq.pronostico.deportivo.utils.AppLogger;
 import ar.edu.unq.pronostico.deportivo.utils.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -219,7 +218,7 @@ public class WhoScoredService {
         return jsonOutput;
     }
 
-    public List<Player> getPlayersFromTeam(String teamName) {
+    public List<PlayerForTeam> getPlayersFromTeam(String teamName) {
         String jsonString = getDataFromTableOnWeb(teamName, "team", "team-players");
         if (jsonString == null) {
             return new ArrayList<>();
@@ -228,14 +227,12 @@ public class WhoScoredService {
     }
 
 
-    public Player getPlayerStatics(String playerName) {
-        String jsonString = getDataFromPlayerOnWeb(playerName);
-        return JsonParser.fromJsonToPlayer(jsonString);
+    public List<Map<String, String>> getPlayerStatics(String playerName) {
+        return getDataFromPlayerOnWeb(playerName);
     }
 
 
-    private String getDataFromPlayerOnWeb(String playerName){
-        String playerStatsTableId = "top-player-stats-summary-grid";
+    private List<Map<String, String>> getDataFromPlayerOnWeb(String playerName){
         String defensiveTableId = "player-tournament-stats-defensive";
         String offensiveTableId = "player-tournament-stats-offensive";
         String divPath = "div.col12-lg-6.col12-m-6.col12-s-6.col12-xs-12";
@@ -247,20 +244,18 @@ public class WhoScoredService {
 
         Elements playerInfoTable = playersPage.select(divPath);
         Element defensiveStatsTable = getDinamicTable(driver, cssToDefensiveStatsPage, defensiveTableId);
-        System.out.println("selenium la concha de tu madre");
         Element offensiveStatsTable = getDinamicTable(driver, cssToOffensiveStatsPage, offensiveTableId);
-        String jsonPlayerData =  transformTablesToJson(defensiveStatsTable, offensiveStatsTable, playerInfoTable);
-        return "new Player()";
+        return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, playerInfoTable);
     }
 
     private Element getDinamicTable(WebDriver driver, String cssPathToTab, String tableWrapperId) {
         driver.findElement(By.cssSelector(cssPathToTab)).click();
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // Mantén o ajusta este timeout
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(40));
 
-        // Espera a que el div contenedor esté presente
+
         WebElement tableWrapperDiv = wait.until(ExpectedConditions.presenceOfElementLocated(By.id(tableWrapperId)));
 
-        // Espera a que el elemento <table> anidado esté presente y obtén una referencia a l
+
         WebElement nestedTableWebElement;
         try {
             nestedTableWebElement = wait.until(
@@ -268,41 +263,44 @@ public class WhoScoredService {
             );
         } catch (Exception e) {
             AppLogger.warn(WhoScoredService.class.getName(), "getDinamicTable", "Timeout esperando la tabla anidada en: " + tableWrapperId + ". Error: " + e.getMessage());
-            // System.out.println("DEBUG: No se encontró la tabla anidada en " + tableWrapperId);
-            return null; // Retorna null si la tabla no se encuentra
+
+            return null;
         }
 
-        // Una vez que Selenium confirma que el WebElement de la tabla existe, obtén su outerHTML.
-        // outerHTML incluye el propio tag <table> y su contenido.
         String tableHtml = nestedTableWebElement.getAttribute("outerHTML");
 
         if (tableHtml == null || tableHtml.isEmpty()) {
             AppLogger.warn(WhoScoredService.class.getName(), "getDinamicTable", "outerHTML de la tabla anidada está vacío para: " + tableWrapperId);
-            // System.out.println("DEBUG: outerHTML de la tabla anidada estaba vacío en " + tableWrapperId);
             return null;
         }
 
         Document doc = Jsoup.parse(tableHtml);
-        // Como parseamos el outerHTML de la tabla, el elemento <table> debería ser el primer hijo del body
-        // o podemos seleccionarlo directamente. selectFirst("table") es más seguro.
         Element tableElement = doc.selectFirst("table");
 
-        // if (tableElement == null) {
-        //     System.out.println("DEBUG: Jsoup no pudo parsear la tabla desde su outerHTML para " + tableWrapperId);
-        //     System.out.println("DEBUG: HTML de la tabla era: " + tableHtml.substring(0, Math.min(tableHtml.length(), 300)));
-        // }
         return tableElement;
     }
 
-    private String transformTablesToJson(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable){
-        String playerInfo = getContentFromDiv(playerInfoTable);
-        List<Map<String, String>> defensiveStats = getTableContent(playerDefensiveStatsTable);
-        List<Map<String, String>> offensiveStats = getTableContent(playerOffensiveStatsTable);
-        String playerDataForPlayersCreation = "";
-        return playerDataForPlayersCreation;
+
+    public  List<Map<String, String>> transformTablesToMap(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable) {
+
+        List<Map<String, String>> playerTotalData = new ArrayList<>();
+
+        Map<String, String> playerInfo = getContentFromDiv(playerInfoTable);
+        List<Map<String, String>> allDefensiveStats = getTableContent(playerDefensiveStatsTable);
+        List<Map<String, String>> allOffensiveStats = getTableContent(playerOffensiveStatsTable);
+
+        Map<String, String> averageDefensiveStats = allDefensiveStats.getLast();
+        Map <String, String> averageOffensiveStats = allOffensiveStats.getLast();
+
+        playerTotalData.add(playerInfo);
+        playerTotalData.add(averageOffensiveStats);
+        playerTotalData.add(averageDefensiveStats);
+
+        return playerTotalData;
+
     }
 
-    private String getContentFromDiv(Elements divPath){
+    private Map<String, String> getContentFromDiv(Elements divPath) {
         Map<String, String> playersInfo = new HashMap<>();
 
         for (Element row : divPath) {
@@ -311,18 +309,11 @@ public class WhoScoredService {
                 String key = labelSpan.text().trim();
                 String value = row.text().replace(labelSpan.text(), "").trim();
                 playersInfo.put(key, value);
-                }
             }
-        ObjectMapper mapper = new ObjectMapper();
-
-        try{
-            return mapper.writeValueAsString(playersInfo);
-        } catch (JsonProcessingException e){
-            throw  new RuntimeException(e.getMessage());
         }
+
+        return playersInfo;
     }
-
-
 
     private Document goToPlayersPage(String player, WebDriver driver) {
         String baseURL = "https://whoscored.com";
@@ -335,18 +326,5 @@ public class WhoScoredService {
         String fullURL = baseURL + relativeURL;
         driver.get(fullURL);
         return Jsoup.parse(driver.getPageSource());
-    }
-
-    private static void addPageToList(WebDriver driver, String cssSelector, List<Document> list) {
-        if (cssSelector != null){
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(cssSelector)));
-            element.click();
-        }
-        String pageSource = driver.getPageSource();
-        Document document = Jsoup.parse(pageSource);
-        String hash = Integer.toHexString(pageSource.hashCode());
-        System.out.println("Page hash: " + hash);
-        list.add(document);
     }
 }

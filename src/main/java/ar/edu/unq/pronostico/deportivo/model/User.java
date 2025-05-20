@@ -1,6 +1,9 @@
 package ar.edu.unq.pronostico.deportivo.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.persistence.*;
@@ -21,6 +24,10 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<Activity> activity = new ArrayList<>();
     
     public User(String name, String password){
         this.name = name;
@@ -36,6 +43,10 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.getName();
+    }
+
+    public void addActivity(Activity newActivity){
+        this.activity.add(newActivity);
     }
 }
 

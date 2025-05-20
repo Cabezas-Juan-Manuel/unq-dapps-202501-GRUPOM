@@ -1,4 +1,4 @@
-package ar.edu.unq.pronostico.deportivo.model.PlayerH;
+package ar.edu.unq.pronostico.deportivo.model.Player;
 
 import lombok.AllArgsConstructor;
 

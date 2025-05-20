@@ -1,8 +1,8 @@
 package ar.edu.unq.pronostico.deportivo.model.playerFactory;
 
 
-import ar.edu.unq.pronostico.deportivo.model.PlayerH.Defender;
-import ar.edu.unq.pronostico.deportivo.model.PlayerH.Player;
+import ar.edu.unq.pronostico.deportivo.model.Player.Defender;
+import ar.edu.unq.pronostico.deportivo.model.Player.Player;
 
 import java.util.List;
 import java.util.Map;

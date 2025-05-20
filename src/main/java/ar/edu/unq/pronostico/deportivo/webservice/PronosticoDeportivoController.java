@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
-import ar.edu.unq.pronostico.deportivo.model.PlayerH.Player;
+import ar.edu.unq.pronostico.deportivo.model.Player.Player;
 import ar.edu.unq.pronostico.deportivo.service.PlayerService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 

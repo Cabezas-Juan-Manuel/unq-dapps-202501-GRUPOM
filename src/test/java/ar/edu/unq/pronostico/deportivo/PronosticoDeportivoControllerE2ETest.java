@@ -1,6 +1,6 @@
 package ar.edu.unq.pronostico.deportivo;
 
-import ar.edu.unq.pronostico.deportivo.model.Player;
+import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.RegisterDto;
@@ -58,7 +58,7 @@ class PronosticoDeportivoControllerE2ETest {
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<ApiResponse<List<Player>>> response = restTemplate.exchange(
+        ResponseEntity<ApiResponse<List<PlayerForTeam>>> response = restTemplate.exchange(
                 baseUrl + "/pronosticoDeportivo/team/" + teamName + "/players",
                 HttpMethod.GET,
                 entity,

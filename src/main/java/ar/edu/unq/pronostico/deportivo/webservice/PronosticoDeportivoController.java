@@ -1,8 +1,10 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
 import ar.edu.unq.pronostico.deportivo.model.Player;
+import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 
+import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -19,9 +21,11 @@ import java.util.List;
 public class PronosticoDeportivoController {
 
     private final WhoScoredService whoScoredService;
+    private final FootballDataService footballDataService;
 
-    public PronosticoDeportivoController(WhoScoredService whoScoredService) {
+    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService) {
         this.whoScoredService = whoScoredService;
+        this.footballDataService = footballDataService;
     }
 
 
@@ -40,5 +44,10 @@ public class PronosticoDeportivoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.name(), "Internal server error", null, null));
         }
+    }
+
+    @GetMapping("/team/{teamName}/matches")
+    public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
+        return ResponseEntity.ok(footballDataService.getFuturesMatches(teamName));
     }
 }

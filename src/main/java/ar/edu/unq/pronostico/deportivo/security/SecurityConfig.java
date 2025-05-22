@@ -25,7 +25,8 @@ public class SecurityConfig {
                                         "/auth/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
-                                        "/swagger-ui.html"
+                                        "/swagger-ui.html",
+                                        "/pronosticoDeportivo/predictMatch"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                         )

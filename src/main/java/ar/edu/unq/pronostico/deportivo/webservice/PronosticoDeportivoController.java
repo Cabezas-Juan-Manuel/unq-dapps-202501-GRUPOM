@@ -10,6 +10,7 @@ import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.PlayerWithPerformanceScoreDto;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -37,6 +38,7 @@ public class PronosticoDeportivoController {
 
 
     @GetMapping("/team/{teamName}/players")
+    @Transactional
     public ResponseEntity<ApiResponse<List<PlayerForTeam>>> getPlayersFromTeam(@PathVariable String teamName) {
         try {
             List<PlayerForTeam> players = whoScoredService.getPlayersFromTeam(teamName);
@@ -54,11 +56,13 @@ public class PronosticoDeportivoController {
     }
 
     @GetMapping("/team/{teamName}/matches")
+    @Transactional
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
         return ResponseEntity.ok(footballDataService.getFuturesMatches(teamName));
     }
 
     @GetMapping("playerPerformance")
+    @Transactional
     public ResponseEntity<PlayerWithPerformanceScoreDto> playerPerformance(@RequestParam String playerName) {
         List<Map<String, String>> playerData = whoScoredService.getPlayerStatics(playerName);
         Player player = playerService.makePlayerFromData(playerData);
@@ -69,6 +73,7 @@ public class PronosticoDeportivoController {
     }
 
     @GetMapping("predictMatch")
+    @Transactional
     public Mono<ResponseEntity<String>> predictMatch(
             @RequestParam String team1,
             @RequestParam String team2

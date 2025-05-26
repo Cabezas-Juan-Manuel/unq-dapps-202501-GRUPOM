@@ -9,6 +9,7 @@ import ar.edu.unq.pronostico.deportivo.security.JwtService;
 import ar.edu.unq.pronostico.deportivo.utils.UserMapper;
 import ar.edu.unq.pronostico.deportivo.model.User;
 
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "login")
+    @Transactional
     public ResponseEntity<UserDto> login(@RequestBody LoginDto login){
         User user = userService.getUser(login.getName(), login.getPassword());
         String token = generateTokenFor(user);
@@ -41,6 +43,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(userDto);
     }
     @PostMapping(value = "register")
+    @Transactional
     public ResponseEntity<UserDto> register(@RequestBody RegisterDto register){
         AuthValidator.validateRegister(register);
 

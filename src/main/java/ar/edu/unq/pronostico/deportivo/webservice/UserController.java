@@ -4,6 +4,7 @@ import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.ActivityDto;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.ActivityPageDto;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ public class UserController {
     @Autowired
     UserService userService;
     @GetMapping("activityHistory")
+    @Transactional
     public ResponseEntity<ActivityPageDto> activityHistory(@RequestParam String userName, @RequestParam(defaultValue = "0") int page) {
         Page<Activity> userActivityHistory = userService.getUserActivy(userName, page);
         List<ActivityDto> userActivitiesDto = ActivityMapper.toActivityDtoFromActivity(userActivityHistory.getContent());

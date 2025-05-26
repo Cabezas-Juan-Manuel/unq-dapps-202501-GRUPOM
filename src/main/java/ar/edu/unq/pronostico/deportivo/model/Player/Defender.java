@@ -2,6 +2,8 @@ package ar.edu.unq.pronostico.deportivo.model.Player;
 
 import lombok.AllArgsConstructor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -13,7 +15,19 @@ public class Defender extends Player{
     }
 
     @Override
-    public Double calculatePerformance() {
+    public void checkIfHasEverythingToCalculatePerformance() {
+        String fouls = "Fouls";
+        String clear = "Clear";
+        String inter = "Inter";
+        String blocks = "Blocks";
+        List<String> requiredKeys = Arrays.asList(clear, blocks, fouls, inter);
+        if(!performanceStatistics.keySet().containsAll(requiredKeys)){
+            throw  missingStatsError();
+        }
+    }
+
+    @Override
+    public Double calculate() {
         double fouls = Double.parseDouble(this.performanceStatistics.get("Fouls"));
         double clear = Double.parseDouble(this.performanceStatistics.get("Clear"));
         double inter = Double.parseDouble(this.performanceStatistics.get("Inter"));

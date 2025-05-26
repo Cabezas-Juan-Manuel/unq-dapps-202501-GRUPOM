@@ -10,6 +10,7 @@ public class MidFielderFactory extends PlayerFactory {
 
     @Override
     Player createPlayerWithPersonalInfoAndStatistics(String name, String age, String currentTeam, String nationality, List<Map<String, String>> playerInfoAndStatistics) {
+
         return new MidFielder(name, age, currentTeam, nationality, playerInfoAndStatistics.get(2), playerInfoAndStatistics.get(1));
     }
 }

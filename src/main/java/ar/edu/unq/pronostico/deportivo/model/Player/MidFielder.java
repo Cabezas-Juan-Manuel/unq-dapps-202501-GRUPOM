@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 @Getter
 @Setter
@@ -19,7 +21,19 @@ public class MidFielder extends Player {
     }
 
     @Override
-    public Double calculatePerformance() {
+    public void checkIfHasEverythingToCalculatePerformance() {
+        String clear = "Clear";
+        String fouls = "Fouls";
+        String tackles = "Tackles";
+        String assists = "Assists";
+        List<String> requiredKeysForDeffensiveStatistics = Arrays.asList(clear, fouls, tackles);
+        if (!(defensivePerformanceStatistics.keySet().containsAll(requiredKeysForDeffensiveStatistics) && offensivePerformanceStatistics.containsKey(assists))){
+            throw missingStatsError();
+        }
+    }
+
+    @Override
+    public Double calculate() {
         double clear = Double.parseDouble(this.defensivePerformanceStatistics.get("Clear"));
         double fouls = Double.parseDouble(this.defensivePerformanceStatistics.get("Fouls"));
         double tackles = Double.parseDouble(this.defensivePerformanceStatistics.get("Tackles"));

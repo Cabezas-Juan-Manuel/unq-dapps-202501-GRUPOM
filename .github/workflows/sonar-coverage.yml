@@ -1,4 +1,4 @@
-name: Test and Tag on Success
+name: Test and generate Coverage
 
 on:
   push:

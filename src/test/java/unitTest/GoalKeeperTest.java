@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class goalKeeperTest {
+public class GoalKeeperTest {
 
     @Test
     void testGoalKeeperCanCalculatePerformance(){
@@ -42,7 +42,11 @@ public class goalKeeperTest {
 
     @Test
     void testGoalKeeperCantCalculatePerformanceIfHeHasNotStatistics(){
-
+        Map<String, String> playerStatistics = null;
+        String expectedErrorMessage = UserErrors.MISSING_STATISTICS_ERROR.getMessage();
+        Goalkeeper goalkeeper = new Goalkeeper("Walter Benitez", "32", "psv", "Argentino", playerStatistics);
+        RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> goalkeeper.calculatePerformance());
+        assertEquals(expectedErrorMessage, exceptionThrown.getMessage());
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 public class DefenderFactory extends PlayerFactory {
 
     @Override
-    Player createPlayerWithPersonalInfoAndStatistics(String name, String age, String currentTeam, String nationality, List<Map<String, String>> playerInfoAndStatistics) {
+    public Player createPlayer(String name, String age, String currentTeam, String nationality, List<Map<String, String>> playerInfoAndStatistics) {
         return new Defender(name, age, currentTeam, nationality, playerInfoAndStatistics.get(2));
     }
 }

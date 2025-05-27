@@ -11,13 +11,9 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 public class MidFielder extends Player {
-    private Map<String, String> defensivePerformanceStatistics;
-    private Map<String, String> offensivePerformanceStatistics;
 
-    public MidFielder(String name, String age, String team, String nationality, Map<String, String> defensivePerformanceStatistics, Map<String, String> offensivePerformanceStatistics){
-        super(name, age, team, nationality);
-        this.defensivePerformanceStatistics = defensivePerformanceStatistics;
-        this.offensivePerformanceStatistics = offensivePerformanceStatistics;
+    public MidFielder(String name, String age, String team, String nationality, Map<String, String> performanceStatistics){
+        super(name, age, team, nationality, performanceStatistics);
     }
 
     @Override
@@ -26,18 +22,18 @@ public class MidFielder extends Player {
         String fouls = "Fouls";
         String tackles = "Tackles";
         String assists = "Assists";
-        List<String> requiredKeysForDeffensiveStatistics = Arrays.asList(clear, fouls, tackles);
-        if (!(defensivePerformanceStatistics.keySet().containsAll(requiredKeysForDeffensiveStatistics) && offensivePerformanceStatistics.containsKey(assists))){
+        List<String> requiredStats = Arrays.asList(clear, fouls, tackles, assists);
+        if (hasNotRequiredStats(requiredStats)){
             throw missingStatsError();
         }
     }
 
     @Override
     public Double calculate() {
-        double clear = Double.parseDouble(this.defensivePerformanceStatistics.get("Clear"));
-        double fouls = Double.parseDouble(this.defensivePerformanceStatistics.get("Fouls"));
-        double tackles = Double.parseDouble(this.defensivePerformanceStatistics.get("Tackles"));
-        int assists = Integer.parseInt(this.offensivePerformanceStatistics.get("Assists"));
+        double clear = Double.parseDouble(getPerformanceStatistics().get("Clear"));
+        double fouls = Double.parseDouble(getPerformanceStatistics().get("Fouls"));
+        double tackles = Double.parseDouble(getPerformanceStatistics().get("Tackles"));
+        int assists = Integer.parseInt(getPerformanceStatistics().get("Assists"));
         return clear + tackles + (assists / 2) - fouls;
     }
 }

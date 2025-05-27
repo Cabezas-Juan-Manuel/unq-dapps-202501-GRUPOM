@@ -2,9 +2,9 @@ name: Test and Tag on Success
 
 on:
   push:
-    branches: [ "feature/workflow-fix" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "feature/workflow-fix" ]
+    branches: [ "main" ]
 
 permissions:
   contents: write

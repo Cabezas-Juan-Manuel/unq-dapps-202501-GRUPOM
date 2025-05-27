@@ -1,9 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-
 import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.model.User;
 import ar.edu.unq.pronostico.deportivo.repositories.IActivityRepository;

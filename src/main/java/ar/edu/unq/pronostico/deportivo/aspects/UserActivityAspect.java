@@ -1,7 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.aspects;
 
 import ar.edu.unq.pronostico.deportivo.security.JwtAuthFilter;
-import ar.edu.unq.pronostico.deportivo.security.JwtService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
@@ -11,11 +10,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import java.lang.management.ManagementFactory;
 import java.time.LocalDateTime;
 
 @Aspect

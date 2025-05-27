@@ -5,6 +5,8 @@ import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.ActivityDto;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.ActivityPageDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,10 @@ public class UserController {
 
     @GetMapping("activityHistory")
     @Transactional
+    @Parameter(example = "carlos")
+    @Parameter(example = "0")
+    @Operation(summary = "returns a page with the activity of the user", description = "returns a given page of the users activity, if the parameter" +
+            " page is not given the default page will be 0, the activity is every private endpoint witch  the user has interacted with")
     public ResponseEntity<ActivityPageDto> activityHistory(@RequestParam String userName, @RequestParam(defaultValue = "0") int page) {
         userActivityWatcher.logUserActivity();
         Page<Activity> userActivityHistory = userService.getUserActivy(userName, page);

@@ -10,6 +10,8 @@ import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.PlayerWithPerformanceScoreDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -36,7 +38,9 @@ public class PronosticoDeportivoController {
         this.userActivityWatcher = userActivityWatcher;
     }
 
-
+    @Operation(summary = "gets team players", description = "returns a list of players of the team with data about them, name, matches played, goals" +
+            " assists and rating")
+    @Parameter(example = "Bayern Munich")
     @GetMapping("/team/{teamName}/players")
     @Transactional
     public ResponseEntity<ApiResponse<List<PlayerForTeam>>> getPlayersFromTeam(@PathVariable String teamName) {
@@ -56,6 +60,9 @@ public class PronosticoDeportivoController {
         }
     }
 
+    @Operation(summary = "gets a list of the teams next matches", description = "returns a list of upcoming matches for a team with information about the match" +
+            " as the rivals name, if the team plays home or away and the date of the match")
+    @Parameter(example = "Bayern Munich")
     @GetMapping("/team/{teamName}/matches")
     @Transactional
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
@@ -63,6 +70,10 @@ public class PronosticoDeportivoController {
         return ResponseEntity.ok(footballDataService.getFuturesMatches(teamName));
     }
 
+
+    @Operation(summary = "get player performance", description = "returns the performance of a player as a number calculated with statistics related to the " +
+            " players position in the filed and information of the player, name, nationality, age and team")
+    @Parameter(example = "Robert Lewandowski")
     @GetMapping("playerPerformance")
     @Transactional
     public ResponseEntity<PlayerWithPerformanceScoreDto> playerPerformance(@RequestParam String playerName) {
@@ -75,6 +86,9 @@ public class PronosticoDeportivoController {
         return ResponseEntity.status(HttpStatus.OK).body(playerDto);
     }
 
+    @Operation(summary = "predicts a match between two given teams", description = "asks an ia about the result of a match with two given teams and returns the result")
+    @Parameter(example = "Bayern Munich")
+    @Parameter(example = "Napoli")
     @GetMapping("predictMatch")
     @Transactional
     public Mono<ResponseEntity<String>> predictMatch(

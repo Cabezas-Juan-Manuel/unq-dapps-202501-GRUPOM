@@ -42,6 +42,7 @@ public class AuthController {
         headers.add("Authorization", "Bearer " + token);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(userDto);
     }
+
     @PostMapping(value = "register")
     @Transactional
     public ResponseEntity<UserDto> register(@RequestBody RegisterDto register){

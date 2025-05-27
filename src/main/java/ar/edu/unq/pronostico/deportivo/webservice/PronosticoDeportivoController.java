@@ -1,5 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
+import ar.edu.unq.pronostico.deportivo.aspects.UserActivityWatcher;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
@@ -25,18 +26,21 @@ public class PronosticoDeportivoController {
     private final FootballDataService footballDataService;
     private final PlayerService playerService;
     private final ChatService chatService;
+    private final UserActivityWatcher userActivityWatcher;
 
-    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService) {
+    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService, UserActivityWatcher userActivityWatcher) {
         this.whoScoredService = whoScoredService;
         this.footballDataService = footballDataService;
         this.playerService = playerService;
         this.chatService = chatService;
+        this.userActivityWatcher = userActivityWatcher;
     }
 
 
     @GetMapping("/team/{teamName}/players")
     @Transactional
     public ResponseEntity<ApiResponse<List<PlayerForTeam>>> getPlayersFromTeam(@PathVariable String teamName) {
+        userActivityWatcher.logUserActivity();
         try {
             List<PlayerForTeam> players = whoScoredService.getPlayersFromTeam(teamName);
 
@@ -55,12 +59,14 @@ public class PronosticoDeportivoController {
     @GetMapping("/team/{teamName}/matches")
     @Transactional
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
+        userActivityWatcher.logUserActivity();
         return ResponseEntity.ok(footballDataService.getFuturesMatches(teamName));
     }
 
     @GetMapping("playerPerformance")
     @Transactional
     public ResponseEntity<PlayerWithPerformanceScoreDto> playerPerformance(@RequestParam String playerName) {
+        userActivityWatcher.logUserActivity();
         List<Map<String, String>> playerData = whoScoredService.getPlayerStatics(playerName);
         Player player = playerService.makePlayerFromData(playerData);
         Double performanceScore = playerService.getPerformanceForPlayer(player);
@@ -75,6 +81,7 @@ public class PronosticoDeportivoController {
             @RequestParam String team1,
             @RequestParam String team2
     ) {
+        userActivityWatcher.logUserActivity();
         String prompt = String.format("¿Quién ganará el partido entre %s y %s? Da una respuesta super corta en porcentajes sino me enojo.", team1, team2);
         Mono<String> chatResponse = chatService.getResponse(prompt);
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));

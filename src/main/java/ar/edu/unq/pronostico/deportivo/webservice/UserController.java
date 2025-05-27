@@ -1,5 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
+import ar.edu.unq.pronostico.deportivo.aspects.UserActivityWatcher;
 import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.webservice.Dtos.ActivityDto;
@@ -21,9 +22,13 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
+    @Autowired
+    UserActivityWatcher userActivityWatcher;
+
     @GetMapping("activityHistory")
     @Transactional
     public ResponseEntity<ActivityPageDto> activityHistory(@RequestParam String userName, @RequestParam(defaultValue = "0") int page) {
+        userActivityWatcher.logUserActivity();
         Page<Activity> userActivityHistory = userService.getUserActivy(userName, page);
         List<ActivityDto> userActivitiesDto = ActivityMapper.toActivityDtoFromActivity(userActivityHistory.getContent());
         return ResponseEntity.status(HttpStatus.OK).body(new ActivityPageDto(userActivitiesDto, userName,

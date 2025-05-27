@@ -1,5 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.webservice.Dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class RegisterDto {
+    @NotBlank
     private String name;
+    @NotBlank
     private String password;
 }

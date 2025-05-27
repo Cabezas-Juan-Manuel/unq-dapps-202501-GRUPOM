@@ -18,16 +18,6 @@ jobs:
     container:
       image: maven:3.9-eclipse-temurin-21
 
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB_TEST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
-        ports:
-          - 5432:5432
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,9 +26,8 @@ jobs:
 
       - name: Run tests with Maven
         env:
-          POSTGRES_URL: ${{ secrets.POSTGRES_URL_TEST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
+          POSTGRES_USER: ${{ secrets.DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
         run: mvn -B test
 
@@ -85,6 +74,7 @@ jobs:
           draft: false
           prerelease: false
   deploy:
+    if: github.event_name == 'push'
     needs: [test, tag]
     runs-on: ubuntu-latest
     steps:

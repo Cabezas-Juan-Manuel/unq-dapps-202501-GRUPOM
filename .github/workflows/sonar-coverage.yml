@@ -39,6 +39,10 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
+          OP_TOKEN: ${{secrets.OP_TOKEN}}
+          FD_URL: ${{ secrets.FD_URL }}
+          FD_TOKEN: ${{ secrets.FD_TOKEN }}
+
         run: mvn clean verify jacoco:report
 
       - name: SonarCloud Scan

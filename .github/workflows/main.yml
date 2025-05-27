@@ -2,7 +2,7 @@ name: Test and Tag on Success
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "feature/workflow-fix" ]
   pull_request:
     branches: [ "main" ]
 
@@ -26,9 +26,13 @@ jobs:
 
       - name: Run tests with Maven
         env:
-          POSTGRES_USER: ${{ secrets.DB_USERNAME }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
+          FD_URL: ${{ secrets.FD_URL }}
+          FD_TOKEN: ${{secrets.FD_TOKEN }}
+          OP_TOKEN: ${{ secrets.OP_TOKEN }}
+          PROFILE: ${{ secrets.PROFILE }}
         run: mvn -B test
 
   tag:

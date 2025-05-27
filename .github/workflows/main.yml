@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "feature/workflow-fix" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "feature/workflow-fix" ]
 
 permissions:
   contents: write

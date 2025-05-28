@@ -12,20 +12,11 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     environment: Workflow
 
     container:
       image: maven:3.9-eclipse-temurin-21
-
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB_TEST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -35,13 +26,13 @@ jobs:
 
       - name: Run tests and generate JaCoCo report
         env:
-          POSTGRES_URL: ${{ secrets.POSTGRES_URL_TEST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
-          OP_TOKEN: ${{secrets.OP_TOKEN}}
           FD_URL: ${{ secrets.FD_URL }}
-          FD_TOKEN: ${{ secrets.FD_TOKEN }}
+          FD_TOKEN: ${{secrets.FD_TOKEN }}
+          OP_TOKEN: ${{ secrets.OP_TOKEN }}
+          PROFILE: ${{ secrets.PROFILE }}
 
         run: mvn clean verify jacoco:report
 

@@ -1,9 +1,11 @@
 package ar.edu.unq.pronostico.deportivo.security;
 
 import ar.edu.unq.pronostico.deportivo.model.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -14,7 +16,8 @@ import java.util.Map;
 
 @Service
 public class JwtService {
-    private static final String KEY = "VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5VGhpcyBpcyBhIHNlY3VyZSBzZWNyZXQga2V5Cg==";
+    @Value("${jwt.key}")
+    private String key;
 
     public String getToken(User user) {
         return getNewToken(new HashMap<>(), user);
@@ -32,7 +35,7 @@ public class JwtService {
     }
 
     private Key getKey() {
-        byte[] keyBytes = KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

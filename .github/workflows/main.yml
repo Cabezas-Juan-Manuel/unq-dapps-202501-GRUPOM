@@ -6,26 +6,17 @@ on:
   pull_request:
     branches: [ "main" ]
 
-
 permissions:
   contents: write
 
 jobs:
-  test-and-tag:
+  test:
     runs-on: ubuntu-latest
-
+    
+    environment: Workflow
+    
     container:
       image: maven:3.9-eclipse-temurin-21
-
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: pronosticodeportivotest
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -35,33 +26,64 @@ jobs:
 
       - name: Run tests with Maven
         env:
-          DB_URL: jdbc:postgresql://postgres:5432/pronosticodeportivotest # Usar nombre del servicio 'postgres'
-          DB_USERNAME: testuser
-          DB_PASSWORD: testpassword
-
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          FD_URL: ${{ secrets.FD_URL }}
+          FD_TOKEN: ${{secrets.FD_TOKEN }}
+          OP_TOKEN: ${{ secrets.OP_TOKEN }}
+          PROFILE: ${{ secrets.PROFILE }}
         run: mvn -B test
 
+  tag:
+    needs: test 
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Calculate and Push Next Checkpoint Tag
-        if: github.event_name == 'push'  && success()
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+          
 
           git fetch --tags
-
           LATEST_TAG=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
-
           if [[ -z "$LATEST_TAG" ]]; then
             NEW_TAG="checkpoint-1"
           else
-            
             VERSION_NUMBER=$(echo $LATEST_TAG | sed 's/^checkpoint-//')
-    
             NEXT_VERSION_NUMBER=$((VERSION_NUMBER + 1))
-
             NEW_TAG="checkpoint-${NEXT_VERSION_NUMBER}"
           fi
 
           git tag $NEW_TAG
-
           git push origin $NEW_TAG
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: "Release for ${{ env.NEW_TAG }}"
+          draft: false
+          prerelease: false
+  deploy:
+    if: github.event_name == 'push'
+    needs: [test, tag]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          curl -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
+
+

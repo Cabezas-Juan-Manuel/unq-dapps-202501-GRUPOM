@@ -38,10 +38,11 @@ jobs:
         
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }
         with:
           args: >
             -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM
             -Dsonar.organization=quilmes1978
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ env.SONAR_TOKEN }}
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco-resources/jacoco.xml

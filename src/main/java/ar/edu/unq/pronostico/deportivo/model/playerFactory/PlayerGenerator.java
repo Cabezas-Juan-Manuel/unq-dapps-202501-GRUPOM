@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.model.playerFactory;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import lombok.Getter;
 
 import java.util.*;

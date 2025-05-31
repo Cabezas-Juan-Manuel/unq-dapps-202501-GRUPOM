@@ -26,6 +26,11 @@ import java.time.Duration;
 
 @Service
 public class WhoScoredService {
+    String teamPlayersIdentifier = "team-players";
+    String teamStatsIdentifier = "team-stats";
+    String playerStatsIdentifier = "player-stats";
+    String playerLatestMatchesIdentifier = "player-latest-matches";
+
 
     private WebDriver configureWebDriver() {
         ChromeOptions options = new ChromeOptions();
@@ -41,7 +46,7 @@ public class WhoScoredService {
     private Map<String, String> generateMapNameId() {
         Map<String, String> dictionary = new HashMap<>();
         dictionary.put("team-stats", "top-team-stats-summary-grid");
-        dictionary.put("team-players", "top-player-stats-summary-grid");
+        dictionary.put(teamPlayersIdentifier, "top-player-stats-summary-grid");
         dictionary.put("player-stats", "top-player-stats-summary-grid");
         dictionary.put("player-latest-matches", "player-matches-table");
         return dictionary;
@@ -145,7 +150,7 @@ public class WhoScoredService {
             AppLogger.error(serviceClass, serviceMethod, "Invalid value for searchBy. Must be 'player' or 'team'");
             throw new IllegalArgumentException("Available arguments: player, team");
         }
-        if (!tableBy.equals("team-stats") && !tableBy.equals("team-players") &&
+        if (!tableBy.equals("team-stats") && !tableBy.equals(teamPlayersIdentifier) &&
                 !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
             AppLogger.error(serviceClass, serviceMethod, "Invalid value for tableBy");
             throw new IllegalArgumentException("Available arguments: team-stats, team-players");
@@ -219,7 +224,7 @@ public class WhoScoredService {
     }
 
     public List<PlayerForTeam> getPlayersFromTeam(String teamName) {
-        String jsonString = getDataFromTableOnWeb(teamName, "team", "team-players");
+        String jsonString = getDataFromTableOnWeb(teamName, "team", teamPlayersIdentifier);
         if (jsonString == null) {
             return new ArrayList<>();
         }
@@ -275,9 +280,7 @@ public class WhoScoredService {
         }
 
         Document doc = Jsoup.parse(tableHtml);
-        Element tableElement = doc.selectFirst("table");
-
-        return tableElement;
+        return doc.selectFirst("table");
     }
 
 

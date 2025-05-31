@@ -1,20 +1,16 @@
 package unitTest;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Forward;
-import ar.edu.unq.pronostico.deportivo.model.Player.MidFielder;
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Forward;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.ForwardFactory;
-import ar.edu.unq.pronostico.deportivo.model.playerFactory.MidFielderFactory;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-public class ForwardFactoryTest {
+class ForwardFactoryTest {
     @Test
     void createPlayer_creates_a_forward(){
         String name = "Krueger";

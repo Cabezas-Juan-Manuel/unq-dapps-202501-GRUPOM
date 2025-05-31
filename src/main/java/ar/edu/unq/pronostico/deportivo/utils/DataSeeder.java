@@ -13,11 +13,12 @@ public class DataSeeder implements CommandLineRunner {
         this.userService = usuarioRepository;
     }
 
+    private String password = "Password123!";
     @Override
     public void run(String... args) throws Exception {
-        userService.createUser("carlos", "Password123!");
-        userService.createUser("anotherCarlos", "Password123!");
-        userService.createUser("theFinalCarlos", "Password123!");
+        userService.createUser("carlos", password);
+        userService.createUser("anotherCarlos", password);
+        userService.createUser("theFinalCarlos", password);
     }
 }
 

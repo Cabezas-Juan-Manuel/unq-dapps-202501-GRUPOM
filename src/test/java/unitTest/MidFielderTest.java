@@ -1,21 +1,18 @@
 package unitTest;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Forward;
-import ar.edu.unq.pronostico.deportivo.model.Player.MidFielder;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.model.player.MidFielder;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class MidFielderTest {
+class MidFielderTest {
     @Test
     void testMidFielderCanCalculatePerformance(){
         Map<String, String> playerStatistics = new HashMap<>();
-        Integer assists =  25;
+        Double assists = 25.0;
         Double fouls = 3.5;
         Double clear = 5.0;
         Double tackles = 4.5;

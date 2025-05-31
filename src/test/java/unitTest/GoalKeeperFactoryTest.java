@@ -1,22 +1,17 @@
 package unitTest;
 
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Goalkeeper;
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Goalkeeper;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.GoalkeeperFactory;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension; // Necesario para @ExtendWith
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 
-@ExtendWith(MockitoExtension.class) // Facilita el uso de anotaciones de Mockito
 public class GoalKeeperFactoryTest {
     @Test
     void createPlayer_creates_a_goalkeeper(){

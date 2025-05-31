@@ -1,8 +1,8 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.RegisterDto;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.LoginDto;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.UserDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.RegisterDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.LoginDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.UserDto;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.utils.AuthValidator;
 import ar.edu.unq.pronostico.deportivo.security.JwtService;
@@ -25,7 +25,6 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserService userService;
 
-    @Autowired
     public AuthController(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
         this.userService = userService;

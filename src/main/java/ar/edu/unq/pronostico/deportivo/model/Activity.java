@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Activity {
+public class Activity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,4 +30,4 @@ public class Activity {
         this.queryParams = queryParams;
         this.time =  timeStamp;
     }
-};
+}

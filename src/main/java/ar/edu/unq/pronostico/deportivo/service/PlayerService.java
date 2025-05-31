@@ -1,6 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.service;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerGenerator;
 import org.springframework.stereotype.Service;
 

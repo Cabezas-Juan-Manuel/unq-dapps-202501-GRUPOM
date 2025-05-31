@@ -1,7 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.security;
 
 import ar.edu.unq.pronostico.deportivo.model.User;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;

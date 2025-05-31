@@ -15,7 +15,7 @@ public class FootballDataService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${api.external.football-data.url}")
-    private String BaseUrl;
+    private String baseUrl;
 
     @Value("${api.external.football-data.token}")
     private String authToken;
@@ -28,7 +28,7 @@ public class FootballDataService {
         String dateFrom = today.format(formatter);
         String dateTo = tenDaysLater.format(formatter);
 
-        String apiUrl = BaseUrl + String.format(
+        String apiUrl = baseUrl + String.format(
                 "/matches?status=SCHEDULED&dateFrom=%s&dateTo=%s",
                 dateFrom,
                 dateTo

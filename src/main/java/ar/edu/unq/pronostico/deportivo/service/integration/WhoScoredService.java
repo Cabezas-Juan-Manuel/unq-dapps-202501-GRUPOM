@@ -45,10 +45,10 @@ public class WhoScoredService {
 
     private Map<String, String> generateMapNameId() {
         Map<String, String> dictionary = new HashMap<>();
-        dictionary.put("team-stats", "top-team-stats-summary-grid");
+        dictionary.put(teamStatsIdentifier, "top-team-stats-summary-grid");
         dictionary.put(teamPlayersIdentifier, "top-player-stats-summary-grid");
-        dictionary.put("player-stats", "top-player-stats-summary-grid");
-        dictionary.put("player-latest-matches", "player-matches-table");
+        dictionary.put(playerStatsIdentifier, "top-player-stats-summary-grid");
+        dictionary.put(playerLatestMatchesIdentifier, "player-matches-table");
         return dictionary;
     }
 
@@ -150,10 +150,10 @@ public class WhoScoredService {
             AppLogger.error(serviceClass, serviceMethod, "Invalid value for searchBy. Must be 'player' or 'team'");
             throw new IllegalArgumentException("Available arguments: player, team");
         }
-        if (!tableBy.equals("team-stats") && !tableBy.equals(teamPlayersIdentifier) &&
-                !tableBy.equals("player-stats") && !tableBy.equals("player-latest-matches")) {
+        if (!tableBy.equals(teamStatsIdentifier) && !tableBy.equals(teamPlayersIdentifier) &&
+                !tableBy.equals(playerStatsIdentifier) && !tableBy.equals(playerLatestMatchesIdentifier)) {
             AppLogger.error(serviceClass, serviceMethod, "Invalid value for tableBy");
-            throw new IllegalArgumentException("Available arguments: team-stats, team-players");
+            throw new IllegalArgumentException("Available arguments: teamStatsIdentifier, team-players");
         }
 
         String jsonOutput = "";

@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.model.playerFactory;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Goalkeeper;
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Goalkeeper;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 
 import java.util.List;
 import java.util.Map;

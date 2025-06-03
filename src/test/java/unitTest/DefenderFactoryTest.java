@@ -1,12 +1,9 @@
 package unitTest;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Defender;
-import ar.edu.unq.pronostico.deportivo.model.Player.Goalkeeper;
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Defender;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.DefenderFactory;
-import ar.edu.unq.pronostico.deportivo.model.playerFactory.GoalkeeperFactory;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +11,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-public class DefenderFactoryTest {
+class DefenderFactoryTest {
     @Test
     void createPlayer_creates_a_defender(){
         String name = "defender";

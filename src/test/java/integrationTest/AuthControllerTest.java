@@ -2,9 +2,9 @@ package integrationTest;
 
 import ar.edu.unq.pronostico.deportivo.PronosticoDeportivoApplication;
 import ar.edu.unq.pronostico.deportivo.repositories.IUserRepository;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.LoginDto;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.RegisterDto;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.UserDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.LoginDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.RegisterDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.UserDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +16,7 @@ import org.springframework.http.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = PronosticoDeportivoApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AuthControllerTest {
+class AuthControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;

@@ -1,16 +1,14 @@
 package unitTest;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Defender;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.model.player.Defender;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DefenderTest {
+class DefenderTest {
     @Test
     void testDefenderCanCalculatePerformance(){
         Map<String, String> playerStatistics = new HashMap<>();

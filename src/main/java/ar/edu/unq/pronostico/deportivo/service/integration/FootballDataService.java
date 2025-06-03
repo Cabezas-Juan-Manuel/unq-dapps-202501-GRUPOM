@@ -15,10 +15,10 @@ public class FootballDataService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${api.external.football-data.url}")
-    private String BASE_URL;
+    private String baseUrl;
 
     @Value("${api.external.football-data.token}")
-    private String AUTH_TOKEN;
+    private String authToken;
 
     public List<Match> getFuturesMatches(String teamName) {
         LocalDate today = LocalDate.now();
@@ -28,14 +28,14 @@ public class FootballDataService {
         String dateFrom = today.format(formatter);
         String dateTo = tenDaysLater.format(formatter);
 
-        String apiUrl = BASE_URL + String.format(
+        String apiUrl = baseUrl + String.format(
                 "/matches?status=SCHEDULED&dateFrom=%s&dateTo=%s",
                 dateFrom,
                 dateTo
         );
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("x-auth-token", AUTH_TOKEN);
+        headers.set("x-auth-token", authToken);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         HttpEntity<String> entity = new HttpEntity<>(headers);

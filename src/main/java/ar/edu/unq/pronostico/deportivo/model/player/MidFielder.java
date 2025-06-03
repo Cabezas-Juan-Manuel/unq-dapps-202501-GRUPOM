@@ -1,4 +1,4 @@
-package ar.edu.unq.pronostico.deportivo.model.Player;
+package ar.edu.unq.pronostico.deportivo.model.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +33,7 @@ public class MidFielder extends Player {
         double clear = Double.parseDouble(getPerformanceStatistics().get("Clear"));
         double fouls = Double.parseDouble(getPerformanceStatistics().get("Fouls"));
         double tackles = Double.parseDouble(getPerformanceStatistics().get("Tackles"));
-        int assists = Integer.parseInt(getPerformanceStatistics().get("Assists"));
+        double assists = Double.parseDouble(getPerformanceStatistics().get("Assists"));
         return clear + tackles + (assists / 2) - fouls;
     }
 }

@@ -1,4 +1,4 @@
-package ar.edu.unq.pronostico.deportivo.service.Errors;
+package ar.edu.unq.pronostico.deportivo.service.errors;
 
 import lombok.Getter;
 

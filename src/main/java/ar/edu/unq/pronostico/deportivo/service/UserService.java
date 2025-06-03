@@ -5,7 +5,8 @@ import java.util.Optional;
 import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.model.User;
 import ar.edu.unq.pronostico.deportivo.repositories.IActivityRepository;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import jakarta.validation.constraints.Null;
 import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,17 +18,20 @@ import ar.edu.unq.pronostico.deportivo.repositories.IUserRepository;
 @Service
 public class UserService {
 
-    @Autowired
     private IUserRepository userDao;
 
-    @Autowired
     private IActivityRepository activityDao;
+
+    public UserService(IUserRepository userDao, IActivityRepository activityDao) {
+        this.userDao = userDao;
+        this.activityDao = activityDao;
+    }
 
 
     public User createUser(String name, String password){
         User user = userDao.getByName(name);
         if (user != null){
-            throw new IllegalArgumentException("user already registered");
+            throw new IllegalArgumentException(UserErrors.ALREADY_REGISTERED.getMessage());
         }
         return this.generateNewUser(name, password);
     }
@@ -42,7 +46,7 @@ public class UserService {
     public User getUser(String name, String password) {
         User user = Optional
                 .ofNullable(this.userDao.getByName(name))
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new NullPointerException(
                         UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage()
                 ));
         validatePassWord(user.getPassword(), password);
@@ -63,18 +67,18 @@ public class UserService {
     public Page<Activity> getUserActivy(String userName, int page) {
         User user = Optional
                 .ofNullable(this.userDao.getByName(userName))
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new NullPointerException(
                         UserErrors.USER_NOT_FOUND.getMessage()
                 ));
         Pageable pageable = PageRequest.of(page, 10);
-        return activityDao.getActivityByUser(userName, pageable);
+        return activityDao.getActivityByUser(user.getName(), pageable);
     }
 
     public void registerActivity(String user, String url, String method, String queryParams, LocalDateTime timeStamp) {
-        User Registereduser = userDao.getByName(user);
-        Activity newActivity = new Activity(Registereduser, url, method, queryParams, timeStamp);
+        User registereduser = userDao.getByName(user);
+        Activity newActivity = new Activity(registereduser, url, method, queryParams, timeStamp);
         activityDao.save(newActivity);
-        Registereduser.addActivity(newActivity);
-        userDao.save(Registereduser);
+        registereduser.addActivity(newActivity);
+        userDao.save(registereduser);
     }
 }

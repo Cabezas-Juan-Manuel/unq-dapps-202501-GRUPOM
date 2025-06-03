@@ -27,7 +27,7 @@ public class User implements UserDetails {
 
     @OneToMany
     @JoinColumn(name = "user_id")
-    private List<Activity> activity = new ArrayList<>();
+    private  List<Activity> activity = new ArrayList<>();
     
     public User(String name, String password){
         this.name = name;

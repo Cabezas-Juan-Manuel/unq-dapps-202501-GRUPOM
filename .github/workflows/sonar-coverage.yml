@@ -13,8 +13,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    environment: Workflow
-
     container:
       image: maven:3.9-eclipse-temurin-21
 
@@ -30,18 +28,18 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
           FD_URL: ${{ secrets.FD_URL }}
-          FD_TOKEN: ${{secrets.FD_TOKEN }}
+          FD_TOKEN: ${{ secrets.FD_TOKEN }}
           OP_TOKEN: ${{ secrets.OP_TOKEN }}
           PROFILE: ${{ secrets.PROFILE }}
-
         run: mvn clean verify jacoco:report
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          args: >
-            -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM
-            -Dsonar.organization=quilmes1978
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco-resources/jacoco.xml
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM
+          -Dsonar.organization=quilmes1978
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${ SONAR_TOKEN }
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml

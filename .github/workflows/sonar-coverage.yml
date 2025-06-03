@@ -36,11 +36,10 @@ jobs:
         run: mvn clean verify jacoco:report
         
       - name: SonarCloud Scan
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM \
           -Dsonar.organization=quilmes1978 \
           -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

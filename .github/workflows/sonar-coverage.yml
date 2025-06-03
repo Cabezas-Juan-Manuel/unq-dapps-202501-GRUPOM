@@ -41,5 +41,5 @@ jobs:
           -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM \
           -Dsonar.organization=quilmes1978 \
           -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml

@@ -2,9 +2,9 @@ name: Test and generate Coverage
 
 on:
   push:
-    branches: [ "QA" ]
+    branches: [ "QA", "main" ]
   pull_request:
-    branches: [ "QA" ]
+    branches: [ "QA", "main" ]
 
 permissions:
   contents: write
@@ -37,9 +37,9 @@ jobs:
         
       - name: SonarCloud Scan
         run: |
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM \
-          -Dsonar.organization=quilmes1978 \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          mvn sonar:sonar \
+            -Dsonar.projectKey=Cabezas-Juan-Manuel_unq-dapps-202501-GRUPOM \
+            -Dsonar.organization=quilmes1978 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml

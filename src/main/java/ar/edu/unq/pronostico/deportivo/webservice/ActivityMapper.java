@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
 import ar.edu.unq.pronostico.deportivo.model.Activity;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.ActivityDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.ActivityDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,10 +9,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class ActivityMapper {
+
+    private ActivityMapper(){}
+
     public static List<ActivityDto> toActivityDtoFromActivity(List<Activity> activityList) {
         return activityList.stream()
-                .map(ActivityMapper :: toActivityDto)
-                .collect(Collectors.toList());
+                .map(ActivityMapper :: toActivityDto).toList();
     }
 
     private static ActivityDto toActivityDto(Activity activity) {

@@ -1,22 +1,20 @@
 package unitTest;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PlayerFactoryTest {
+class PlayerFactoryTest {
 
     @Mock
     private Player mockPlayer;

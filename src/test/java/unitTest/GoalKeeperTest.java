@@ -1,16 +1,14 @@
 package unitTest;
 
-import ar.edu.unq.pronostico.deportivo.model.Player.Goalkeeper;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.model.player.Goalkeeper;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class GoalKeeperTest {
+class GoalKeeperTest {
 
     @Test
     void testGoalKeeperCanCalculatePerformance(){

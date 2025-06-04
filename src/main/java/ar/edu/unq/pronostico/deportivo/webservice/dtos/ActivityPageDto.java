@@ -1,6 +1,5 @@
-package ar.edu.unq.pronostico.deportivo.webservice.Dtos;
+package ar.edu.unq.pronostico.deportivo.webservice.dtos;
 
-import ar.edu.unq.pronostico.deportivo.model.Activity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

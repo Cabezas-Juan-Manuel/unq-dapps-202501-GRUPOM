@@ -1,4 +1,4 @@
-package ar.edu.unq.pronostico.deportivo.webservice.Dtos;
+package ar.edu.unq.pronostico.deportivo.webservice.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -9,6 +9,8 @@ import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.transaction.Transactional;
@@ -27,12 +29,14 @@ public class PronosticoDeportivoController {
     private final FootballDataService footballDataService;
     private final PlayerService playerService;
     private final ChatService chatService;
+    private final MeterRegistry meterRegistry;
 
-    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService) {
+    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService, MeterRegistry meterRegistry) {
         this.whoScoredService = whoScoredService;
         this.footballDataService = footballDataService;
         this.playerService = playerService;
         this.chatService = chatService;
+        this.meterRegistry = meterRegistry;
     }
 
     @Operation(summary = "gets team players", description = "returns a list of players of the team with data about them, name, matches played, goals" +
@@ -62,6 +66,12 @@ public class PronosticoDeportivoController {
     @GetMapping("/team/{teamName}/matches")
     @Transactional
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
+        Counter.builder("pronostico.deportivo.future.matches.requests")
+                .tag("team", teamName)
+                .description("Cuenta las solicitudes al endpoint getFuturesMatches por equipo")
+                .register(meterRegistry)
+                .increment();
+
         return ResponseEntity.ok(footballDataService.getFuturesMatches(teamName));
     }
 

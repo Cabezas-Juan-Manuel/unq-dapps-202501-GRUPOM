@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.utils;
 
 import ar.edu.unq.pronostico.deportivo.model.User;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.UserDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.UserDto;
 
 public class UserMapper {
 

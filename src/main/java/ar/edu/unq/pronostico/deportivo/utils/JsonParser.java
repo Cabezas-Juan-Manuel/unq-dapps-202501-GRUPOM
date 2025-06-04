@@ -12,6 +12,8 @@ public class JsonParser {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static String jsonParserString = "JsonParser";
+
     private JsonParser(){
     }
 
@@ -33,9 +35,9 @@ public class JsonParser {
                 playerList.add(player);
             }
         } catch (JsonProcessingException e) {
-            AppLogger.error("JsonParser", e.getMessage(), "Error to process json");
+            AppLogger.error(jsonParserString, e.getMessage(), "Error to process json");
         } catch (Exception e) {
-            AppLogger.error("JsonParser", e.getMessage(), "Unknown error");
+            AppLogger.error(jsonParserString, e.getMessage(), "Unknown error");
         }
 
         return playerList;
@@ -51,11 +53,11 @@ public class JsonParser {
                 player.setGoals(node.get("Goals").asInt());
                 player.setAssist(node.get("Assists").asInt());
                 player.setRating(node.get("Rating").asDouble());
-                return player;
+               return player;
             }
 
         } catch (JsonProcessingException e) {
-            AppLogger.error("JsonParser", e.getMessage(), "Error to process json");
+            AppLogger.error(jsonParserString, e.getMessage(), "Error to process json");
         }
         return player;
     }

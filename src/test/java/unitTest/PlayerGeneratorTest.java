@@ -2,8 +2,8 @@ package unitTest;
 
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerGenerator;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +27,7 @@ class PlayerGeneratorTest {
         Player mockedPlayer = mock(Player.class);
         when(mockedFactory.generatePlayer(positionsAndInfo)).thenReturn(mockedPlayer);
 
-        Player generatedPlayer = generator.generatePlayerWithData(positionsAndInfo);
+        generator.generatePlayerWithData(positionsAndInfo);
 
         verify(mockedFactory, times(1)).generatePlayer(positionsAndInfo);
     }

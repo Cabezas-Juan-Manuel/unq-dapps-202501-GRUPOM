@@ -1,6 +1,6 @@
-package ar.edu.unq.pronostico.deportivo.model.Player;
+package ar.edu.unq.pronostico.deportivo.model.player;
 
-import ar.edu.unq.pronostico.deportivo.service.Errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +29,7 @@ public abstract class Player {
     public abstract Double calculate();
 
     public RuntimeException missingStatsError(){
-        return new RuntimeException(UserErrors.MISSING_STATISTICS_ERROR.getMessage());
+        return new IllegalArgumentException(UserErrors.MISSING_STATISTICS_ERROR.getMessage());
     }
 
     public boolean hasNotRequiredStats(List<String> requiredKeys){

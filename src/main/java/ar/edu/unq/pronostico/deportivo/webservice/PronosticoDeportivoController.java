@@ -1,15 +1,14 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
-import ar.edu.unq.pronostico.deportivo.aspects.UserActivityWatcher;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
-import ar.edu.unq.pronostico.deportivo.model.Player.Player;
+import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.service.PlayerService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
-import ar.edu.unq.pronostico.deportivo.webservice.Dtos.PlayerWithPerformanceScoreDto;
+import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.transaction.Transactional;
@@ -28,14 +27,12 @@ public class PronosticoDeportivoController {
     private final FootballDataService footballDataService;
     private final PlayerService playerService;
     private final ChatService chatService;
-    private final UserActivityWatcher userActivityWatcher;
 
-    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService, UserActivityWatcher userActivityWatcher) {
+    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService) {
         this.whoScoredService = whoScoredService;
         this.footballDataService = footballDataService;
         this.playerService = playerService;
         this.chatService = chatService;
-        this.userActivityWatcher = userActivityWatcher;
     }
 
     @Operation(summary = "gets team players", description = "returns a list of players of the team with data about them, name, matches played, goals" +
@@ -44,7 +41,6 @@ public class PronosticoDeportivoController {
     @GetMapping("/team/{teamName}/players")
     @Transactional
     public ResponseEntity<ApiResponse<List<PlayerForTeam>>> getPlayersFromTeam(@PathVariable String teamName) {
-        userActivityWatcher.logUserActivity();
         try {
             List<PlayerForTeam> players = whoScoredService.getPlayersFromTeam(teamName);
 
@@ -66,7 +62,6 @@ public class PronosticoDeportivoController {
     @GetMapping("/team/{teamName}/matches")
     @Transactional
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
-        userActivityWatcher.logUserActivity();
         return ResponseEntity.ok(footballDataService.getFuturesMatches(teamName));
     }
 
@@ -77,7 +72,6 @@ public class PronosticoDeportivoController {
     @GetMapping("playerPerformance")
     @Transactional
     public ResponseEntity<PlayerWithPerformanceScoreDto> playerPerformance(@RequestParam String playerName) {
-        userActivityWatcher.logUserActivity();
         List<Map<String, String>> playerData = whoScoredService.getPlayerStatics(playerName);
         Player player = playerService.makePlayerFromData(playerData);
         Double performanceScore = playerService.getPerformanceForPlayer(player);
@@ -95,7 +89,6 @@ public class PronosticoDeportivoController {
             @RequestParam String team1,
             @RequestParam String team2
     ) {
-        userActivityWatcher.logUserActivity();
         String prompt = String.format("¿Quién ganará el partido entre %s y %s? Da una respuesta super corta en porcentajes sino me enojo.", team1, team2);
         Mono<String> chatResponse = chatService.getResponse(prompt);
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));

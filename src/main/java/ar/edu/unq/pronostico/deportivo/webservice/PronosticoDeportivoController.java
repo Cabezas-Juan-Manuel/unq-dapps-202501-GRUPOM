@@ -66,12 +66,8 @@ public class PronosticoDeportivoController {
     @GetMapping("/team/{teamName}/matches")
     @Transactional
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
-        String sanitizedTeamName = teamName.toLowerCase()
-                .replaceAll("\\s+", "_")
-                .replaceAll("[^a-z0-9_]", "");
-
         Counter.builder("pronostico.deportivo.future.matches.requests")
-                .tag("team", sanitizedTeamName)
+                .tag("team", teamName)
                 .description("Cuenta las solicitudes al endpoint getFuturesMatches por equipo")
                 .register(meterRegistry)
                 .increment();

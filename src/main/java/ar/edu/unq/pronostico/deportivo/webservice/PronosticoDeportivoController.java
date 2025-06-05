@@ -68,7 +68,7 @@ public class PronosticoDeportivoController {
     public ResponseEntity<List<Match>> getFuturesMatches(@PathVariable String teamName) {
         Counter.builder("pronostico.deportivo.future.matches.requests")
                 .tag("team", teamName)
-                .description("Cuenta las solicitudes al endpoint getFuturesMatches por equipo")
+                .description("Counts all requests made to the getFutureMatches endpoint, categorized by team.")
                 .register(meterRegistry)
                 .increment();
 

@@ -2,9 +2,9 @@ name: Test and generate Coverage
 
 on:
   push:
-    branches: [ "QA", "main", "develop" ]
+    branches: [ "QA", "main" ]
   pull_request:
-    branches: [ "QA", "main", "develop" ]
+    branches: [ "QA", "main" ]
 
 permissions:
   contents: write

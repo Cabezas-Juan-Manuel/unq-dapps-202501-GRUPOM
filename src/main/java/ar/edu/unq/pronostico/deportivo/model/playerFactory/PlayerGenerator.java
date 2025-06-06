@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.model.playerFactory;
 
 import ar.edu.unq.pronostico.deportivo.model.player.Player;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 import lombok.Getter;
 
 import java.util.*;
@@ -48,13 +48,13 @@ public class PlayerGenerator {
 
     private void checkIfpositionIsValid(String position) {
         if(position == null){
-            throw  new NullPointerException(UserErrors.POSITION_DOES_NOT_MATCH.getMessage());
+            throw  new NullPointerException(Errors.POSITION_DOES_NOT_MATCH.getMessage());
         }
     }
 
     private void checkIfTheresAPosition(Map<String, String> playerInfo) {
         if(!playerInfo.containsKey("Positions:")) {
-            throw new IllegalArgumentException(UserErrors.THERES_NO_POSITION_AVAILABLE_FOR_THIS_PLAYER.getMessage());
+            throw new IllegalArgumentException(Errors.THERES_NO_POSITION_AVAILABLE_FOR_THIS_PLAYER.getMessage());
         }
     }
 

@@ -1,7 +1,7 @@
 package unitTest;
 
 import ar.edu.unq.pronostico.deportivo.model.player.MidFielder;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ class MidFielderTest {
         Map<String, String> playerStatistics = new HashMap<>();
         Double tackles = 3.5;
         Double fouls = 3.5;
-        String expectedErrorMessage = UserErrors.MISSING_STATISTICS_ERROR.getMessage();
+        String expectedErrorMessage = Errors.MISSING_STATISTICS_ERROR.getMessage();
         playerStatistics.put("Blocks", tackles.toString());
         playerStatistics.put("Tackles", fouls.toString());
         MidFielder midFielder = new MidFielder("Chapu Brania", "46", "Quilmes", "Argentino", playerStatistics);
@@ -42,7 +42,7 @@ class MidFielderTest {
     @Test
     void testMidFielderCantCalculatePerformanceIfHeHasNotStatistics(){
         Map<String, String> playerStatistics = null;
-        String expectedErrorMessage = UserErrors.MISSING_STATISTICS_ERROR.getMessage();
+        String expectedErrorMessage = Errors.MISSING_STATISTICS_ERROR.getMessage();
         MidFielder midFielder = new MidFielder("Chapu Brania", "46", "Quilmes", "Argentino", playerStatistics);
         RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> midFielder.calculatePerformance());
         assertEquals(expectedErrorMessage, exceptionThrown.getMessage());

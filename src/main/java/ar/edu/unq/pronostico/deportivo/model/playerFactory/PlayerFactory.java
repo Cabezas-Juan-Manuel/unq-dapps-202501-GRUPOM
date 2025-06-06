@@ -1,7 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.model.playerFactory;
 
 import ar.edu.unq.pronostico.deportivo.model.player.Player;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public abstract class PlayerFactory {
 
     private void checkifItHasPlayersInfo(List<Map<String, String>> playerInfoAndStatistics, List<String> playerInfoLabels) {
         if (playerInfoAndStatsAreWrong(playerInfoAndStatistics, playerInfoLabels)){
-            throw  new IllegalArgumentException(UserErrors.PLAYER_INFO_IS_WRONG_OR_NULL.getMessage());
+            throw  new IllegalArgumentException(Errors.PLAYER_INFO_IS_WRONG_OR_NULL.getMessage());
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class PlayerFactory {
 
     private void checkIfItHasPlayersStats(List<Map<String, String>> playerInfoAndStatistics) {
         if (playerInfoAndStatistics.size() < 3) {
-            throw new IllegalArgumentException(UserErrors.PLAYER_STATISTICS_ARE_EMPTY.getMessage());
+            throw new IllegalArgumentException(Errors.PLAYER_STATISTICS_ARE_EMPTY.getMessage());
         }
     }
 

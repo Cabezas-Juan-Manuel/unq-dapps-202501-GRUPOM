@@ -1,0 +1,47 @@
+name: Generar Tags de Entrega
+
+on:
+  push:
+    branches:
+      - generateTagNameAndVersion
+
+jobs:
+  tagging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Fetch tags
+        run: git fetch --tags
+
+      - name: Calculate and Push Next Checkpoint Tag
+        run: |
+          # Obtener el mensaje del último commit
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Último commit: $COMMIT_MESSAGE"
+
+          # Verificar si el commit incluye "newTag"
+          if [[ "$COMMIT_MESSAGE" == *"newTag"* ]]; then
+            # Buscar la última entrega (ENTREGA X)
+            LATEST_ENTREGA=$(git tag --list "ENTREGA-*" --sort=v:refname | tail -n 1)
+
+            if [[ -z "$LATEST_ENTREGA" ]]; then
+              NEW_ENTREGA="ENTREGA-1"
+            else
+              ENTREGA_NUMBER=$(echo $LATEST_ENTREGA | sed 's/^ENTREGA-//')
+              NEXT_ENTREGA_NUMBER=$((ENTREGA_NUMBER + 1))
+              NEW_ENTREGA="ENTREGA-${NEXT_ENTREGA_NUMBER}"
+            fi
+
+            # Crear nuevo tag de entrega
+            git tag $NEW_ENTREGA
+            git push origin $NEW_ENTREGA
+            echo "NEW_TAG=$NEW_ENTREGA" >> $GITHUB_ENV
+
+

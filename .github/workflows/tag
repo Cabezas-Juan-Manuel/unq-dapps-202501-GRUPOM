@@ -2,8 +2,8 @@ name: Generar Tags de Entrega
 
 on:
   push:
-    branches:
-      - generateTagNameAndVersion
+    branches: ["generateTagNameAndVersion"]
+       
 
 jobs:
   tagging:

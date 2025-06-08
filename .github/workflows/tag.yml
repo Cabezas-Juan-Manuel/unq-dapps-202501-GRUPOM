@@ -2,9 +2,8 @@ name: Generar Tags de Entrega
 
 on:
   push:
-    branches: ["generateTagNameAndVersion"]
-       
-
+    branches: ["feature/generateTagNameAndVersion"]
+  
 jobs:
   tagging:
     runs-on: ubuntu-latest

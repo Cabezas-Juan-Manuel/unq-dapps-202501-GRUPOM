@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "feature/generateTagNameAndVersion" ]
   pull_request:
-    branches: [ "main", "Develop" ]
+    branches: [ "main", "develop" ]
 
 permissions:
   contents: write
@@ -41,7 +41,7 @@ jobs:
     needs: [test]
     environment: Workflow
     env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
     steps:
       - name: Trigger Tag and Deploy Workflow
         if: github.event_name == 'push' && github.ref_name == 'feature/generateTagNameAndVersion'

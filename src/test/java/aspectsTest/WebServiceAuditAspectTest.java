@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
@@ -30,7 +31,7 @@ class WebServiceAuditAspectIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+    @MockitoBean
     private FootballDataService footballDataService;
 
     @Test
@@ -44,7 +45,7 @@ class WebServiceAuditAspectIntegrationTest {
 
         List<Match> mockMatches = Collections.emptyList();
 
-        Mockito.when(footballDataService.getFuturesMatches(anyString())).thenReturn(mockMatches);
+        Mockito.when(footballDataService.getFuturesMatches(teamName)).thenReturn(mockMatches);
 
         mockMvc.perform(get("/pronosticoDeportivo/team/{teamName}/matches", teamName))
                 .andExpect(status().isOk())

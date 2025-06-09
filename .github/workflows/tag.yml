@@ -23,7 +23,7 @@ jobs:
         run: git fetch --tags
 
       - name: Calculate and Push Next Checkpoint Tag
-        if: contains(COMMIT_MESSAGE, 'newTag')
+        if: contains(env.COMMIT_MESSAGE, 'newTag')
         run: |
           # Obtener el mensaje del último commit
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)

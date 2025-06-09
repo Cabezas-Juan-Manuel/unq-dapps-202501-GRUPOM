@@ -36,9 +36,13 @@ jobs:
         run: mvn -B test
 
 
+  trigger-tag-and-deploy-workflow:
+    runs-on: ubuntu-latest
+    needs: [test]
+    environment: Workflow
+    steps:
       - name: Trigger Tag and Deploy Workflow
-      # Solo se ejecuta en push a la rama específica y si los tests fueron exitosos
-        if: github.event_name == 'push' && github.ref_name == 'feature/generateTagNameAndVersion' && steps.run_tests.conclusion == 'success'
+        if: github.event_name == 'push' && github.ref_name == 'feature/generateTagNameAndVersion'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,8 +53,7 @@ jobs:
               workflow_id: 'tag-and-deploy.yml', // Asegúrate que este es el nombre exacto del archivo .yml
               ref: '${{ github.ref_name }}', // La rama donde reside tag-and-deploy.yml y desde donde se ejecutará
               inputs: {
-                commit_message: decodeURIComponent('${{ steps.commit_message_step.outputs.message }}'),
-                test_app_conclusion: '${{ steps.run_tests.conclusion }}'
+                commit_message: decodeURIComponent('${{ steps.commit_message_step.outputs.message }}')
               }
             });
  

@@ -3,9 +3,10 @@ name: Generar Tags de Entrega
 on:
   push:
     branches: ["feature/generateTagNameAndVersion"]
-  
+
 jobs:
   tagging:
+    if: contains(github.event.head_commit.message, 'newTag')
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
@@ -26,25 +27,29 @@ jobs:
           # Obtener el mensaje del último commit
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           echo "Último commit: $COMMIT_MESSAGE"
+          
+          # Buscar la última entrega (ENTREGA X)
+          LATEST_ENTREGA=$(git tag --list "ENTREGA-*" --sort=v:refname | tail -n 1)
 
-          # Verificar si el commit incluye "newTag"
-          if [[ "$COMMIT_MESSAGE" == *"newTag"* ]]; then
-            # Buscar la última entrega (ENTREGA X)
-            LATEST_ENTREGA=$(git tag --list "ENTREGA-*" --sort=v:refname | tail -n 1)
-
-            if [[ -z "$LATEST_ENTREGA" ]]; then
-              NEW_ENTREGA="ENTREGA-1"
-            else
-              ENTREGA_NUMBER=$(echo "$LATEST_ENTREGA" | sed 's/^ENTREGA-//')
-              NEXT_ENTREGA_NUMBER=$((ENTREGA_NUMBER + 1))
-              NEW_ENTREGA="ENTREGA-${NEXT_ENTREGA_NUMBER}"
-            fi
-
-            # Crear nuevo tag de entrega y empujarlo
-            git tag "$NEW_ENTREGA"
-            git push origin "$NEW_ENTREGA"
-            echo "NEW_TAG=$NEW_ENTREGA" >> "$GITHUB_ENV"
+          if [[ -z "$LATEST_ENTREGA" ]]; then
+            NEW_ENTREGA="ENTREGA-1"
+          else
+            ENTREGA_NUMBER=$(echo "$LATEST_ENTREGA" | sed 's/^ENTREGA-//')
+            NEXT_ENTREGA_NUMBER=$((ENTREGA_NUMBER + 1))
+            NEW_ENTREGA="ENTREGA-${NEXT_ENTREGA_NUMBER}"
           fi
+          echo "NEW_TAG=$NEW_ENTREGA" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: "Release for ${{ env.NEW_TAG }}"
+          draft: false
+          prerelease: false
+
 
 
 

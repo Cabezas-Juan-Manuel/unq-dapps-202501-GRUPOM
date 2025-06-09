@@ -41,6 +41,5 @@ jobs:
             # Crear nuevo tag de entrega
             git tag $NEW_ENTREGA
             git push origin $NEW_ENTREGA
-            echo "NEW_TAG=$NEW_ENTREGA" >> $GITHUB_ENV
 
 

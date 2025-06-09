@@ -36,7 +36,7 @@ jobs:
           LATEST_CHECKPOINT=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
 
           if [[ -z "$LATEST_CHECKPOINT" ]]; then
-            NEW_ENTREGA="checkpoint-1_v.1.0"
+            NEW_TAG="checkpoint-1_v.1.0"
           else
             CHECKPOINT_NUMBER=$(echo "$LATEST_CHECKPOINT" | sed 's/^checkpoint-//')
             NEXT_CHECKPOINT_NUMBER=$((CHECKPOINT_NUMBER + 1))

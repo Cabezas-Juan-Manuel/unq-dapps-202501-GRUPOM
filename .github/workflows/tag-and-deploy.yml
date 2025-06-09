@@ -8,6 +8,7 @@ on:
 
 jobs:
   tag:
+    if: ${{  github.event.workflow_run.head_branch == 'feature/generateTagNameAndVersion' }}
     runs-on: ubuntu-latest
     environment: Workflow
     env:
@@ -69,6 +70,7 @@ jobs:
           prerelease: false
 
   deploy:
+    if: ${{  github.event.workflow_run.head_branch == 'feature/generateTagNameAndVersion' }}
     needs: [tag]
     runs-on: ubuntu-latest
     steps:

@@ -50,8 +50,8 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'tag-and-deploy.yml', // Asegúrate que este es el nombre exacto del archivo .yml
-              ref: '${{ github.ref_name }}', // La rama donde reside tag-and-deploy.yml y desde donde se ejecutará
+              workflow_id: 'tag-and-deploy.yml',
+              ref: '${{ github.ref_name }}', 
               inputs: {
                 commit_message: decodeURIComponent('${{ steps.commit_message_step.outputs.message }}')
               }

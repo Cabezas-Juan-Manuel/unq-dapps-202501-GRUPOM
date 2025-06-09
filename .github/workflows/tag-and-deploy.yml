@@ -32,10 +32,7 @@ jobs:
       - name: Calculate and Push Next Checkpoint Tag
         if: contains(env.COMMIT_MESSAGE, 'newTag')
         run: |
-          # Obtener el mensaje del último commit
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-          echo "Último commit: $COMMIT_MESSAGE"
-          
+        
           # Buscar la última entrega (checkpoint X)
           LATEST_CHECKPOINT=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
 

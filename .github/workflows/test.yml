@@ -39,6 +39,7 @@ jobs:
   trigger-tag-and-deploy-workflow:
     runs-on: ubuntu-latest
     needs: [test]
+    permissions: write-all
     environment: Workflow
     env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}

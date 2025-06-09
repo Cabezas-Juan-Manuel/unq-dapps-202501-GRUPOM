@@ -33,11 +33,11 @@ jobs:
           LATEST_CHECKPOINT=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
 
           if [[ -z "$LATEST_CHECKPOINT" ]]; then
-            NEW_ENTREGA="checkpoint-1:v.1.0"
+            NEW_ENTREGA="checkpoint-1_v.1.0"
           else
             CHECKPOINT_NUMBER=$(echo "$LATEST_CHECKPOINT" | sed 's/^checkpoint-//')
             NEXT_CHECKPOINT_NUMBER=$((CHECKPOINT_NUMBER + 1))
-            NEW_CHECKPOINT="checkpoint-${NEXT_CHECKPOINT_NUMBER}:v.1.0"
+            NEW_CHECKPOINT="checkpoint-${NEXT_CHECKPOINT_NUMBER}_v.1.0"
           fi
           echo "NEW_TAG=$NEW_CHECKPOINT" >> "$GITHUB_ENV"
 
@@ -46,13 +46,13 @@ jobs:
         if: "!contains(env.COMMIT_MESSAGE, 'newTag')"
         run: | 
           LATEST_TAG=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
-          CHECKPOINT_PART=$(echo "$LATEST_TAG" | cut -d':' -f1)
-          CURRENT_VERSION=$(echo "$LATEST_TAG" | cut -d':' -f2)
+          CHECKPOINT_PART=$(echo "$LATEST_TAG" | cut -d'_' -f1)
+          CURRENT_VERSION=$(echo "$LATEST_TAG" | cut -d'_' -f2)
           NUMBER=${CURRENT_VERSION#v.}         # quita la "v." y deja "1.0"
           MAJOR=$(echo "$NUMBER" | cut -d. -f1)
           MINOR=$(echo "$NUMBER" | cut -d. -f2)
           NEW_MINOR=$((MINOR + 1))
-          NEW_TAG="${CHECKPOINT_PART}:v.${MAJOR}.${NEW_MINOR}"
+          NEW_TAG="${CHECKPOINT_PART}_v.${MAJOR}.${NEW_MINOR}"
           echo "Nuevo tag generado: $NEW_TAG"
           echo "NEW_TAG=$NEW_TAG" >> "$GITHUB_ENV"
   

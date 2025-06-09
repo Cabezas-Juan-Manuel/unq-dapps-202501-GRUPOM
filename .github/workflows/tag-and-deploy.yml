@@ -9,7 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: write # Necesario para crear tags y releases
+  contents: write
 
 jobs:
   tag:

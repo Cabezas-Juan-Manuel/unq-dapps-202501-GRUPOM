@@ -1,11 +1,13 @@
-name: Generar Tags de Entrega
+name: Generate Tag and deploy
 
 on:
-  push:
-    branches: ["feature/generateTagNameAndVersion"]
+  workflow_run:
+    workflows: ["test"]
+    types:
+      - completed
 
 jobs:
-  tagging:
+  tag:
     runs-on: ubuntu-latest
     environment: Workflow
     env:
@@ -65,6 +67,14 @@ jobs:
           release_name: "Release for ${{ env.NEW_TAG }}"
           draft: false
           prerelease: false
+
+  deploy:
+    needs: [tag]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          curl -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
 
 
 

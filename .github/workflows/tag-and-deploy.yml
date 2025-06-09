@@ -42,6 +42,7 @@ jobs:
             CHECKPOINT_NUMBER=$(echo "$LATEST_CHECKPOINT" | sed 's/^checkpoint-//')
             NEXT_CHECKPOINT_NUMBER=$((CHECKPOINT_NUMBER + 1))
             NEW_CHECKPOINT="checkpoint-${NEXT_CHECKPOINT_NUMBER}_v.1.0"
+            NEW_TAG=$NEW_CHECKPOINT
           fi
           echo "NEW_TAG=$NEW_CHECKPOINT" >> "$GITHUB_ENV"
 

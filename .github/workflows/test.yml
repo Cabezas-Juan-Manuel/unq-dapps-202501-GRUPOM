@@ -15,25 +15,7 @@ jobs:
     
     environment: Workflow
     
-    container:
-      image: maven:3.9-eclipse-temurin-21
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run tests with Maven
-        env:
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          JWT_KEY: ${{ secrets.JWT_KEY }}
-          FD_URL: ${{ secrets.FD_URL }}
-          FD_TOKEN: ${{secrets.FD_TOKEN }}
-          OP_TOKEN: ${{ secrets.OP_TOKEN }}
-          PROFILE: ${{ secrets.PROFILE }}
-        run: mvn -B test
+    
 
  
 

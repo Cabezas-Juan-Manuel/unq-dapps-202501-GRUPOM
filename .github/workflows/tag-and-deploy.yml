@@ -1,18 +1,27 @@
 name: Generate Tag and deploy
 
 on:
-  workflow_run:
-    workflows: [test-app]
-    types:
-      - completed
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message that triggered the test-app workflow'
+        required: true
+        type: string
+      test_app_conclusion:
+        description: 'Conclusion of the test-app workflow (e.g., success)'
+        required: true
+        type: string
+
+permissions:
+  contents: write # Necesario para crear tags y releases
 
 jobs:
   tag:
-    if: ${{  github.event.workflow_run.head_branch == 'feature/generateTagNameAndVersion' }}
+    if: ${{  github.event.inputs.test_app_conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment: Workflow
     env:
-      COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      COMMIT_MESSAGE: ${{ github.event.inputs.commit_message }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -70,7 +79,7 @@ jobs:
           prerelease: false
 
   deploy:
-    if: ${{  github.event.workflow_run.head_branch == 'feature/generateTagNameAndVersion' }}
+    if: ${{  github.event.inputs.test_app_conclusion == 'success' }}
     needs: [tag]
     runs-on: ubuntu-latest
     steps:

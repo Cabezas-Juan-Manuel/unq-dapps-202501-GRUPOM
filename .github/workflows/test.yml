@@ -55,7 +55,7 @@ jobs:
               workflow_id: 'tag-and-deploy.yml',
               ref: '${{ github.ref_name }}', 
               inputs: {
-                commit_message: ${{ github.event.inputs.commit_messagee }}
+                commit_message: context.payload.head_commit.message
               }
             });
 

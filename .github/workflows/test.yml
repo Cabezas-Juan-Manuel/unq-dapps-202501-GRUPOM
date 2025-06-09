@@ -2,7 +2,7 @@ name: test-app
 
 on:
   push:
-    branches: [ "feature/generateTagNameAndVersion" ]
+    branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main", "develop" ]
 
@@ -44,7 +44,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
     steps:
       - name: Trigger Tag and Deploy Workflow
-        if: github.event_name == 'push' && github.ref_name == 'feature/generateTagNameAndVersion'
+        if: github.event_name == 'push' && github.ref_name == 'feature/main'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.TOKEN_GITHUB }}

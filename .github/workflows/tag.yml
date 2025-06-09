@@ -6,9 +6,10 @@ on:
 
 jobs:
   tagging:
-    if: contains(github.event.head_commit.message, 'newTag')
     runs-on: ubuntu-latest
     environment: Workflow
+    env:
+      COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -22,23 +23,39 @@ jobs:
         run: git fetch --tags
 
       - name: Calculate and Push Next Checkpoint Tag
+        if: contains(COMMIT_MESSAGE, 'newTag')
         run: |
           # Obtener el mensaje del último commit
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           echo "Último commit: $COMMIT_MESSAGE"
           
-          # Buscar la última entrega (ENTREGA X)
-          LATEST_ENTREGA=$(git tag --list "ENTREGA-*" --sort=v:refname | tail -n 1)
+          # Buscar la última entrega (checkpoint X)
+          LATEST_CHECKPOINT=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
 
-          if [[ -z "$LATEST_ENTREGA" ]]; then
-            NEW_ENTREGA="ENTREGA-1"
+          if [[ -z "$LATEST_CHECKPOINT" ]]; then
+            NEW_ENTREGA="checkpoint-1:v.1.0"
           else
-            ENTREGA_NUMBER=$(echo "$LATEST_ENTREGA" | sed 's/^ENTREGA-//')
-            NEXT_ENTREGA_NUMBER=$((ENTREGA_NUMBER + 1))
-            NEW_ENTREGA="ENTREGA-${NEXT_ENTREGA_NUMBER}"
+            CHECKPOINT_NUMBER=$(echo "$LATEST_CHECKPOINT" | sed 's/^checkpoint-//')
+            NEXT_CHECKPOINT_NUMBER=$((CHECKPOINT_NUMBER + 1))
+            NEW_CHECKPOINT="checkpoint-${NEXT_CHECKPOINT_NUMBER}:v.1.0"
           fi
-          echo "NEW_TAG=$NEW_ENTREGA" >> "$GITHUB_ENV"
+          echo "NEW_TAG=$NEW_CHECKPOINT" >> "$GITHUB_ENV"
 
+      
+      - name: Calculate next version 
+        if: "!contains(env.COMMIT_MESSAGE, 'newTag')"
+        run: | 
+          LATEST_TAG=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
+          CHECKPOINT_PART=$(echo "$LATEST_TAG" | cut -d':' -f1)
+          CURRENT_VERSION=$(echo "$LATEST_TAG" | cut -d':' -f2)
+          NUMBER=${CURRENT_VERSION#v.}         # quita la "v." y deja "1.0"
+          MAJOR=$(echo "$NUMBER" | cut -d. -f1)
+          MINOR=$(echo "$NUMBER" | cut -d. -f2)
+          NEW_MINOR=$((MINOR + 1))
+          NEW_TAG="${CHECKPOINT_PART}:v.${MAJOR}.${NEW_MINOR}"
+          echo "Nuevo tag generado: $NEW_TAG"
+          echo "NEW_TAG=$NEW_TAG" >> "$GITHUB_ENV"
+  
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:

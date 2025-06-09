@@ -37,12 +37,12 @@ jobs:
           LATEST_CHECKPOINT=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
 
           if [[ -z "$LATEST_CHECKPOINT" ]]; then
-            NEW_TAG="checkpoint-1_v.1.0"
+            NEW_CHECKPOINT="checkpoint-1_v.1.0"
           else
             CHECKPOINT_NUMBER=$(echo "$LATEST_CHECKPOINT" | sed 's/^checkpoint-//')
             NEXT_CHECKPOINT_NUMBER=$((CHECKPOINT_NUMBER + 1))
             NEW_CHECKPOINT="checkpoint-${NEXT_CHECKPOINT_NUMBER}_v.1.0"
-            NEW_TAG=$NEW_CHECKPOINT
+            echo "$NEW_CHECKPOINT"
           fi
           echo "NEW_TAG=$NEW_CHECKPOINT" >> "$GITHUB_ENV"
 

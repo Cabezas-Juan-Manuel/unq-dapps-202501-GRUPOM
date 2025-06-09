@@ -2,7 +2,7 @@ name: Generate Tag and deploy
 
 on:
   workflow_run:
-    workflows: ["test.yml"]
+    workflows: ["Test app"]
     types:
       - completed
 

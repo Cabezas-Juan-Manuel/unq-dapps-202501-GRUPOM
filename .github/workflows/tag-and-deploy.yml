@@ -1,12 +1,15 @@
 name: Generate Tag and deploy
 
+#on:
+  #workflow_dispatch:
+    #inputs:
+      #commit_message:
+        #description: 'Commit message that triggered the test-app workflow'
+        #required: true
+        #type: string
 on:
-  workflow_dispatch:
-    inputs:
-      commit_message:
-        description: 'Commit message that triggered the test-app workflow'
-        required: true
-        type: string
+  push:
+    branches: [ "feature/generateTagNameAndVersion" ]
 
 permissions:
   contents: write # Necesario para crear tags y releases

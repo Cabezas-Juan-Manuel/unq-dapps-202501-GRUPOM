@@ -247,10 +247,15 @@ public class WhoScoredService {
 
         Document playersPage = goToPlayersPage(playerName, driver);
 
+        List<Map<String, String>> listOfTables = new ArrayList<>();
         Elements playerInfoTable = playersPage.select(divPath);
+        Map<String, String> playerInfo = getContentFromDiv(playerInfoTable);
+        listOfTables.add(playerInfo);
+
         Element defensiveStatsTable = getDinamicTable(driver, cssToDefensiveStatsPage, defensiveTableId);
         Element offensiveStatsTable = getDinamicTable(driver, cssToOffensiveStatsPage, offensiveTableId);
-        return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, playerInfoTable);
+
+        return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, listOfTables);
     }
 
     private Element getDinamicTable(WebDriver driver, String cssPathToTab, String tableWrapperId) {
@@ -284,22 +289,18 @@ public class WhoScoredService {
     }
 
 
-    public  List<Map<String, String>> transformTablesToMap(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, Elements playerInfoTable) {
+    public  List<Map<String, String>> transformTablesToMap(Element playerDefensiveStatsTable, Element playerOffensiveStatsTable, List<Map<String, String>> listOfTables) {
 
-        List<Map<String, String>> playerTotalData = new ArrayList<>();
-
-        Map<String, String> playerInfo = getContentFromDiv(playerInfoTable);
         List<Map<String, String>> allDefensiveStats = getTableContent(playerDefensiveStatsTable);
         List<Map<String, String>> allOffensiveStats = getTableContent(playerOffensiveStatsTable);
 
         Map<String, String> averageDefensiveStats = allDefensiveStats.getLast();
         Map <String, String> averageOffensiveStats = allOffensiveStats.getLast();
 
-        playerTotalData.add(playerInfo);
-        playerTotalData.add(averageOffensiveStats);
-        playerTotalData.add(averageDefensiveStats);
+        listOfTables.add(averageOffensiveStats);
+        listOfTables.add(averageDefensiveStats);
 
-        return playerTotalData;
+        return listOfTables;
 
     }
 
@@ -324,6 +325,37 @@ public class WhoScoredService {
         String pageSource = driver.getPageSource();
         Document document = Jsoup.parse(pageSource);
         Element table = getTableByTitle(document, "Players:");
+        Element linkElement = table.selectFirst("a[href]");
+        String relativeURL = linkElement.attr("href");
+        String fullURL = baseURL + relativeURL;
+        driver.get(fullURL);
+        return Jsoup.parse(driver.getPageSource());
+    }
+
+    public List<Map<String, String>> getStatisticsForTeam(String team) {
+        WebDriver driver = configureWebDriver();
+        String topTeamStatsDefensive = "top-team-stats-defensive";
+        String topTeamStatsOffensive = "top-team-stats-offensive";
+        String cssToDefensivePath = "#top-team-stats-options > li:nth-child(2) > a:nth-child(1)";
+        String cssToOffensivePath = "#top-team-stats-options > li:nth-child(3) > a:nth-child(1)";
+
+
+        Document teamPage = goToPageOfSearchedItem(team, driver, "Teams:");;
+
+
+        Element defensiveStatsTable = getDinamicTable(driver, cssToDefensivePath, topTeamStatsDefensive);
+        Element offensiveStatsTable = getDinamicTable(driver, cssToOffensivePath, topTeamStatsOffensive);
+
+        return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, new ArrayList<>());
+
+    }
+
+    private Document goToPageOfSearchedItem(String itemToSearch, WebDriver driver, String tableName) {
+        String baseURL = "https://whoscored.com";
+        driver.get(baseURL + "/search/?t=" + itemToSearch);
+        String pageSource = driver.getPageSource();
+        Document document = Jsoup.parse(pageSource);
+        Element table = getTableByTitle(document, tableName);
         Element linkElement = table.selectFirst("a[href]");
         String relativeURL = linkElement.attr("href");
         String fullURL = baseURL + relativeURL;

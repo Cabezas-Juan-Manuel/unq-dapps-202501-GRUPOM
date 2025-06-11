@@ -5,7 +5,7 @@ public record Match(
         String utcDate,
         String status,
         int matchday,
-        Team homeTeam,
-        Team awayTeam
+        TeamData homeTeam,
+        TeamData awayTeam
 ) {
 }

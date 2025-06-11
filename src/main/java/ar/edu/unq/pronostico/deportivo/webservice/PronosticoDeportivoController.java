@@ -1,5 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
+import ar.edu.unq.pronostico.deportivo.model.Team;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
@@ -7,7 +8,9 @@ import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.service.PlayerService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
+import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.TeamData;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
+import ar.edu.unq.pronostico.deportivo.utils.JsonParser;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -30,13 +33,16 @@ public class PronosticoDeportivoController {
     private final PlayerService playerService;
     private final ChatService chatService;
     private final MeterRegistry meterRegistry;
+    private final TeamService teamService;
 
-    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService, MeterRegistry meterRegistry) {
+    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService,
+                                         ChatService chatService, MeterRegistry meterRegistry, TeamService teamService) {
         this.whoScoredService = whoScoredService;
         this.footballDataService = footballDataService;
         this.playerService = playerService;
         this.chatService = chatService;
         this.meterRegistry = meterRegistry;
+        this.teamService = teamService;
     }
 
     @Operation(summary = "gets team players", description = "returns a list of players of the team with data about them, name, matches played, goals" +
@@ -102,5 +108,23 @@ public class PronosticoDeportivoController {
         String prompt = String.format("¿Quién ganará el partido entre %s y %s? Da una respuesta super corta en porcentajes sino me enojo.", team1, team2);
         Mono<String> chatResponse = chatService.getResponse(prompt);
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
+    }
+
+    @Operation(summary = "compares two given teams", description = "")
+    @Parameter(example = "Bayern Munich")
+    @Parameter(example = "Napoli")
+    @GetMapping("compareTeams")
+    @Transactional
+    public ResponseEntity<String> compareTeams(
+            @RequestParam String team1,
+            @RequestParam String team2
+    ) {
+        List<Map<String, String>> team1Data = whoScoredService.getStatisticsForTeam(team1);
+        List<Map<String, String>> team2Data = whoScoredService.getStatisticsForTeam(team1);
+        Team teamOne = teamService.createTeamFrom(team1, team1Data);
+        Team teamTwo = teamService.createTeamFrom(team2, team2Data);
+        List<Map<String, String>> comparisonTable = teamService.compareTeams(teamOne, teamTwo);
+        String chatResponse = "a";
+        return ResponseEntity.status(HttpStatus.OK).body(chatResponse);
     }
 }

@@ -6,7 +6,7 @@ import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
-import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Team;
+import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.TeamData;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.RegisterDto;
@@ -109,8 +109,8 @@ class PronosticoDeportivoControllerE2ETest {
     void testGetFutureMatchesFromTeam() {
         String baseUrl = "http://localhost:" + port;
         String teamName = "bayern munich";
-        Team milan = new Team(3, "Milan", "Mln", "a", "a");
-        Team bayern = new Team(5, "bayern munich", "by", "b", "b");
+        TeamData milan = new TeamData(3, "Milan", "Mln", "a", "a");
+        TeamData bayern = new TeamData(5, "bayern munich", "by", "b", "b");
         List<Match> mockMatches = List.of(
                 new Match(1, "3/4/05", "not played", 3, milan, bayern),
                 new Match(1, "25/7/25", "not played", 25, bayern, milan)

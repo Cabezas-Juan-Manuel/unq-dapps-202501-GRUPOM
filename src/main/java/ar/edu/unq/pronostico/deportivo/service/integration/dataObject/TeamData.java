@@ -1,6 +1,6 @@
 package ar.edu.unq.pronostico.deportivo.service.integration.dataObject;
 
-public record Team(
+public record TeamData(
         int id,
         String name,
         String shortName,

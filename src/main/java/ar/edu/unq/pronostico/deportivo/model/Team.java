@@ -18,4 +18,28 @@ public class Team {
         this.offensiveStats = teamStats.get(0);
         this.defensiveStats = teamStats.get(1);
     }
+
+    public String getShotsReceived() {
+       return  this.defensiveStats.get("Shots pg");
+    }
+
+    public String getinterceptions() {
+        return this.defensiveStats.get("Interceptions pg");
+    }
+
+    public String getfoulsMade() {
+        return this.defensiveStats.get("Fouls pg");
+    }
+
+    public String getShotsMade() {
+        return this.offensiveStats.get("Shots pg");
+    }
+
+    public String getDribbles() {
+        return this.offensiveStats.get("Dribbles pg");
+    }
+
+    public String getFoulsRecievedPerGame() {
+        return this.offensiveStats.get("Fouled pg");
+    }
 }

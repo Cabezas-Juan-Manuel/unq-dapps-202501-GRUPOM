@@ -8,9 +8,7 @@ import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.service.PlayerService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
-import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.TeamData;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
-import ar.edu.unq.pronostico.deportivo.utils.JsonParser;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -110,21 +108,38 @@ public class PronosticoDeportivoController {
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
     }
 
-    @Operation(summary = "compares two given teams", description = "")
+    @Operation(summary = "compares two given teams", description = "generates a table comparing offensive and defensive statistics of the two given teams")
     @Parameter(example = "Bayern Munich")
     @Parameter(example = "Napoli")
     @GetMapping("compareTeams")
     @Transactional
-    public ResponseEntity<String> compareTeams(
-            @RequestParam String team1,
-            @RequestParam String team2
+    public ResponseEntity<List<Map<String, String>>> compareTeams(
+            @RequestParam String teamOneName,
+            @RequestParam String teamTwoName
     ) {
-        List<Map<String, String>> team1Data = whoScoredService.getStatisticsForTeam(team1);
-        List<Map<String, String>> team2Data = whoScoredService.getStatisticsForTeam(team1);
-        Team teamOne = teamService.createTeamFrom(team1, team1Data);
-        Team teamTwo = teamService.createTeamFrom(team2, team2Data);
+        Team teamOne = generateTeam(teamOneName);
+        Team teamTwo = generateTeam(teamTwoName);
         List<Map<String, String>> comparisonTable = teamService.compareTeams(teamOne, teamTwo);
-        String chatResponse = "a";
-        return ResponseEntity.status(HttpStatus.OK).body(chatResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(comparisonTable);
+    }
+
+
+    @Operation(summary = "se realiza un calculo de rendimiento del equipo", description = " a partir de un equipo dado se le consulta a la ia para que " +
+            "realice un calculo a su eleccion para obtener el rendimiento del equipo")
+    @Parameter(example = "Bayern Munich")
+    @GetMapping("advanceTeamPerformance")
+    @Transactional
+    public Mono<ResponseEntity<String>> advanceTeamPerformance(
+            @RequestParam String teamName
+    ) {
+        // Team team = generateTeam(teamName);
+        String prompt = String.format("¿es %s? mejor equipo de la liga?", teamName);
+        Mono<String> chatResponse = chatService.getResponse(prompt);
+        return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
+    }
+
+    private Team generateTeam(String teamName){
+        List<Map<String, String>> teamData = whoScoredService.getStatisticsForTeam(teamName);
+        return teamService.createTeamFromData(teamName, teamData);
     }
 }

@@ -7,7 +7,7 @@ import java.util.*;
 
 @Service
 public class TeamService {
-    public Team createTeamFrom(String teamName, List<Map<String, String>> teamStats) {
+    public Team createTeamFromData(String teamName, List<Map<String, String>> teamStats) {
         return new Team(teamName, teamStats);
     }
 

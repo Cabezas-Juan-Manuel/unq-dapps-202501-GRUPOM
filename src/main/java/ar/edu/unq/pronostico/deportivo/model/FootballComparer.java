@@ -1,6 +1,5 @@
-package ar.edu.unq.pronostico.deportivo.webservice;
+package ar.edu.unq.pronostico.deportivo.model;
 
-import ar.edu.unq.pronostico.deportivo.model.Team;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class FootballComparator {
+public class FootballComparer {
 
     public static List<Map<String, String>> compareTeams(Team teamOne, Team teamTwo) {
         List<Map<String, String>> comparisonTable = new ArrayList<>();

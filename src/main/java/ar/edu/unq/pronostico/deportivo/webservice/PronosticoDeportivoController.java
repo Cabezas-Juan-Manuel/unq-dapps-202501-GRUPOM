@@ -1,6 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
 import ar.edu.unq.pronostico.deportivo.model.Team;
+import ar.edu.unq.pronostico.deportivo.service.TeamService;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
@@ -124,16 +125,17 @@ public class PronosticoDeportivoController {
     }
 
 
-    @Operation(summary = "se realiza un calculo de rendimiento del equipo", description = " a partir de un equipo dado se le consulta a la ia para que " +
-            "realice un calculo a su eleccion para obtener el rendimiento del equipo")
+    @Operation(summary = "A performance calculation of the team", description = " From a given team, " +
+            "the AI is consulted to perform a calculation of its choice to obtain the team's performance.")
     @Parameter(example = "Bayern Munich")
     @GetMapping("advanceTeamPerformance")
     @Transactional
     public Mono<ResponseEntity<String>> advanceTeamPerformance(
             @RequestParam String teamName
     ) {
-        // Team team = generateTeam(teamName);
-        String prompt = String.format("¿es %s? mejor equipo de la liga?", teamName);
+        Team team = generateTeam(teamName);
+        String prompt = String.format("Generame una metrica compleja para medir el exito del equipo", teamName, "en base a los siguientes datos, disparos al arco:",  team.getShotsMade(), "Dribbles:",
+                                        team.getDribbles(), "disparos al arco recibidos:", team.getShotsReceived(), "fouls realizadas:", team.getfoulsMade());
         Mono<String> chatResponse = chatService.getResponse(prompt);
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
     }

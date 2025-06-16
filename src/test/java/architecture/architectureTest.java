@@ -1,4 +1,4 @@
-package architectureTest;
+package architecture;
 
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;
 import org.junit.jupiter.api.Test;

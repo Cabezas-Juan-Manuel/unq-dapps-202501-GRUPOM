@@ -1,5 +1,6 @@
-package ar.edu.unq.pronostico.deportivo.webservice;
+package ar.edu.unq.pronostico.deportivo.service;
 
+import ar.edu.unq.pronostico.deportivo.model.FootballComparer;
 import ar.edu.unq.pronostico.deportivo.model.Team;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ public class TeamService {
 
     public List<Map<String, String>> compareTeams(Team teamOne, Team teamTwo) {
 
-        return FootballComparator.compareTeams(teamOne, teamTwo);
+        return FootballComparer.compareTeams(teamOne, teamTwo);
 
     }
 }

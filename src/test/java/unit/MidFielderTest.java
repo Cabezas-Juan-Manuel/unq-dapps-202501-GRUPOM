@@ -1,4 +1,4 @@
-package unitTest;
+package unit;
 
 import ar.edu.unq.pronostico.deportivo.model.player.MidFielder;
 import ar.edu.unq.pronostico.deportivo.errors.Errors;

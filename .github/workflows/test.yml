@@ -2,7 +2,7 @@ name: test-app
 
 on:
   push:
-    branches: [ "refactorsForCheckpoint3" ]
+    branches: [ "feature/refactorsForCheckpoint3" ]
   pull_request:
     branches: [ "main", "develop" ]
 

@@ -1,4 +1,4 @@
-package unitTest;
+package unit;
 
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerGenerator;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;

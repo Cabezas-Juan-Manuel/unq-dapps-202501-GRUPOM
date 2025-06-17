@@ -2,6 +2,7 @@ package ar.edu.unq.pronostico.deportivo.webservice;
 
 import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
+import ar.edu.unq.pronostico.deportivo.utils.ActivityMapper;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.ActivityDto;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.ActivityPageDto;
 import io.swagger.v3.oas.annotations.Operation;

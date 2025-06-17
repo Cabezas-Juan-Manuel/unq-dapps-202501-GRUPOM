@@ -32,7 +32,8 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/swagger-ui.html",
-                                        "/pronosticoDeportivo/predictMatch"
+                                        "/pronosticoDeportivo/predictMatch",
+                                        "/pronosticoDeportivo/advanceTeamPerformance"
                                 ).permitAll()
                                 .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
                                 .anyRequest().authenticated()

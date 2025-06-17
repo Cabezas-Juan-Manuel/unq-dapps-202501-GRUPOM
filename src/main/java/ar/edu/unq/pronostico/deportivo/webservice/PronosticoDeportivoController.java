@@ -1,5 +1,7 @@
 package ar.edu.unq.pronostico.deportivo.webservice;
 
+import ar.edu.unq.pronostico.deportivo.model.Team;
+import ar.edu.unq.pronostico.deportivo.service.TeamService;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
@@ -30,13 +32,16 @@ public class PronosticoDeportivoController {
     private final PlayerService playerService;
     private final ChatService chatService;
     private final MeterRegistry meterRegistry;
+    private final TeamService teamService;
 
-    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService, ChatService chatService, MeterRegistry meterRegistry) {
+    public PronosticoDeportivoController(WhoScoredService whoScoredService, FootballDataService footballDataService, PlayerService playerService,
+                                         ChatService chatService, MeterRegistry meterRegistry, TeamService teamService) {
         this.whoScoredService = whoScoredService;
         this.footballDataService = footballDataService;
         this.playerService = playerService;
         this.chatService = chatService;
         this.meterRegistry = meterRegistry;
+        this.teamService = teamService;
     }
 
     @Operation(summary = "gets team players", description = "returns a list of players of the team with data about them, name, matches played, goals" +
@@ -102,5 +107,47 @@ public class PronosticoDeportivoController {
         String prompt = String.format("¿Quién ganará el partido entre %s y %s? Da una respuesta super corta en porcentajes sino me enojo.", team1, team2);
         Mono<String> chatResponse = chatService.getResponse(prompt);
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
+    }
+
+    @Operation(summary = "compares two given teams", description = "generates a table comparing offensive and defensive statistics of the two given teams")
+    @Parameter(example = "Bayern Munich")
+    @Parameter(example = "Napoli")
+    @GetMapping("compareTeams")
+    @Transactional
+    public ResponseEntity<List<Map<String, String>>> compareTeams(
+            @RequestParam String teamOneName,
+            @RequestParam String teamTwoName
+    ) {
+        Team teamOne = generateTeam(teamOneName);
+        Team teamTwo = generateTeam(teamTwoName);
+        List<Map<String, String>> comparisonTable = teamService.compareTeams(teamOne, teamTwo);
+        return ResponseEntity.status(HttpStatus.OK).body(comparisonTable);
+    }
+
+
+    @Operation(summary = "A performance calculation of the team", description = " From a given team, " +
+            "the AI is consulted to perform a calculation of its choice to obtain the team's performance.")
+    @Parameter(example = "Bayern Munich")
+    @GetMapping("advanceTeamPerformance")
+    @Transactional
+    public Mono<ResponseEntity<String>> advanceTeamPerformance(
+            @RequestParam String teamName
+    ) {
+        Team team = generateTeam(teamName);
+        String prompt = String.format(
+                "Haceme un cálculo para medir el éxito del equipo %s con los campos: disparos al arco: %s, dribbles: %s, disparos al arco recibidos: %s, fouls realizadas: %s.",
+                teamName,
+                team.getShotsMade(),
+                team.getDribbles(),
+                team.getShotsReceived(),
+                team.getinterceptions()
+        );
+        Mono<String> chatResponse = chatService.getResponse(prompt);
+        return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
+    }
+
+    private Team generateTeam(String teamName){
+        List<Map<String, String>> teamData = whoScoredService.getStatisticsForTeam(teamName);
+        return teamService.createTeamFromData(teamName, teamData);
     }
 }

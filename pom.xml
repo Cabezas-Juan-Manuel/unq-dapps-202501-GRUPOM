@@ -11,6 +11,20 @@
 	<groupId>ar.edu.unq</groupId>
 	<artifactId>pronosticoDeportivo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<profiles>
+		<profile>
+			<id>unit</id>
+			<properties>
+				<test.subfolder>unit</test.subfolder>
+			</properties>
+		</profile>
+		<profile>
+			<id>e2e</id>
+			<properties>
+				<test.subfolder>e2e</test.subfolder>
+			</properties>
+		</profile>
+	</profiles>
 	<name>pronosticoDeportivo</name>
 	<description>Sistema de Predicción de Partidos y Rendimiento de Jugadores</description>
 	<url/>
@@ -165,6 +179,16 @@
 	</dependencies>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- Se seleccionan solo los tests del subdirectorio según la propiedad -->
+					<includes>
+						<include>**/${test.subfolder}/**/*.java</include>
+					</includes>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

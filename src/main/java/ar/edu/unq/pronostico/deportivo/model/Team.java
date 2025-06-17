@@ -39,7 +39,5 @@ public class Team {
         return this.offensiveStats.get("Dribbles pg");
     }
 
-    public String getFoulsRecievedPerGame() {
-        return this.offensiveStats.get("Fouled pg");
-    }
+    public String getFoulsRecievedPerGame() {return this.offensiveStats.get("Fouled pg");}
 }

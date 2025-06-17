@@ -134,8 +134,14 @@ public class PronosticoDeportivoController {
             @RequestParam String teamName
     ) {
         Team team = generateTeam(teamName);
-        String prompt = String.format("Generame una metrica compleja para medir el exito del equipo", teamName, "en base a los siguientes datos, disparos al arco:",  team.getShotsMade(), "Dribbles:",
-                                        team.getDribbles(), "disparos al arco recibidos:", team.getShotsReceived(), "fouls realizadas:", team.getfoulsMade());
+        String prompt = String.format(
+                "Haceme un cálculo para medir el éxito del equipo %s con los campos: disparos al arco: %s, dribbles: %s, disparos al arco recibidos: %s, fouls realizadas: %s.",
+                teamName,
+                team.getShotsMade(),
+                team.getDribbles(),
+                team.getShotsReceived(),
+                team.getinterceptions()
+        );
         Mono<String> chatResponse = chatService.getResponse(prompt);
         return chatResponse.map(ResponseEntity::ok).onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar predicción"));
     }

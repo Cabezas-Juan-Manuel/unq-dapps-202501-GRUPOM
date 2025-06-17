@@ -38,7 +38,7 @@ jobs:
 
       - name: Run unit Test
         if: github.ref == 'refs/heads/feature/refactorsForCheckpoint3'
-        run: mvn -Punit
+        run: mvn test -Punit
         
  # trigger-tag-and-deploy-workflow:
   #  if: github.event_name == 'push'

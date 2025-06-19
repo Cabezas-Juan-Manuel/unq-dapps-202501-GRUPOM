@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run unit Test
-        if: github.ref == 'refs/heads/feature/refactorsForCheckpoint3'
+        if: github.ref == 'refs/heads/develop'
         run: mvn test -Punit
 
       - name: Run tests with Maven

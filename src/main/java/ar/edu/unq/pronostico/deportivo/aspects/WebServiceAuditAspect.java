@@ -16,7 +16,7 @@ import java.util.Arrays;
 @Component
 public class WebServiceAuditAspect {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(WebServiceAuditAspect.class);
 
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void webServiceMethods() {}

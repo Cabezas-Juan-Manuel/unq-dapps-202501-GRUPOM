@@ -1,5 +1,6 @@
 package e2e;
 
+import ar.edu.unq.pronostico.deportivo.PronosticoDeportivoApplication;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
@@ -27,7 +28,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = PronosticoDeportivoApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PronosticoDeportivoControllerE2ETest {
 

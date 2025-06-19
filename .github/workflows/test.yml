@@ -24,7 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Run unit Test
+        if: github.ref == 'refs/heads/feature/refactorsForCheckpoint3'
+        run: mvn test -Punit
+
       - name: Run tests with Maven
+        if: github.ref == 'refs/heads/main'
         env:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}

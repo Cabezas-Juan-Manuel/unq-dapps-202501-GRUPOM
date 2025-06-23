@@ -25,7 +25,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
+    @JoinColumn(name = "user_id")
     private  List<Activity> activity = new ArrayList<>();
     
     public User(String name, String password){

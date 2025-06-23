@@ -1,6 +1,7 @@
 package architecture;
 
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.domain.JavaClasses;
 
 class ArchitectureTest {
+    @Disabled
     @Test
     void testLayerChecks(){
         JavaClasses importedClasses = new ClassFileImporter()

@@ -16,15 +16,15 @@ public class Activity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String userName;
+    @ManyToOne
+    private User user;
     private String url;
     private String method;
     private String queryParams;
     private LocalDateTime time;
 
-    public Activity(String userName, String url, String method, String queryParams, LocalDateTime timeStamp) {
-        this.userName = userName;
+    public Activity(User user, String url, String method, String queryParams, LocalDateTime timeStamp) {
+        this.user = user;
         this.method = method;
         this.url = url;
         this.queryParams = queryParams;

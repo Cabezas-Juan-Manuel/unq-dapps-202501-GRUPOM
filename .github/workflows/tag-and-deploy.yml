@@ -1,0 +1,83 @@
+name: Generate Tag and deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message that triggered the test-app workflow'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    environment: Workflow
+    env:
+      COMMIT_MESSAGE: ${{ github.event.inputs.commit_message }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Fetch tags
+        run: git fetch --tags
+
+      - name: Calculate and Push Next Checkpoint Tag
+        if: contains(env.COMMIT_MESSAGE, 'newTag')
+        run: |
+        
+          # Buscar la última entrega (checkpoint X)
+          LATEST_CHECKPOINT=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
+
+          if [[ -z "$LATEST_CHECKPOINT" ]]; then
+            NEW_CHECKPOINT="checkpoint-1_v.1.0"
+            echo "NEW_TAG=$NEW_CHECKPOINT" >> "$GITHUB_ENV"
+          else
+            CHECKPOINT_NUMBER=$(echo "$LATEST_CHECKPOINT" | sed -E 's/checkpoint-([0-9]+).*/\1/')
+            NEXT_CHECKPOINT_NUMBER=$((CHECKPOINT_NUMBER + 1))
+            NEW_CHECKPOINT="checkpoint-${NEXT_CHECKPOINT_NUMBER}_v.1.0"
+            echo "NEW_TAG=$NEW_CHECKPOINT" >> "$GITHUB_ENV"
+          fi
+      
+      - name: Calculate next version 
+        if: "!contains(env.COMMIT_MESSAGE, 'newTag')"
+        run: | 
+          LATEST_TAG=$(git tag --list "checkpoint-*" --sort=v:refname | tail -n 1)
+          CHECKPOINT_PART=$(echo "$LATEST_TAG" | cut -d'_' -f1)
+          CURRENT_VERSION=$(echo "$LATEST_TAG" | cut -d'_' -f2)
+          NUMBER=${CURRENT_VERSION#v.}         # quita la "v." y deja "1.0"
+          MAJOR=$(echo "$NUMBER" | cut -d. -f1)
+          MINOR=$(echo "$NUMBER" | cut -d. -f2)
+          NEW_MINOR=$((MINOR + 1))
+          NEW_TAG="${CHECKPOINT_PART}_v.${MAJOR}.${NEW_MINOR}"
+          echo "Nuevo tag generado: $NEW_TAG"
+          echo "NEW_TAG=$NEW_TAG" >> "$GITHUB_ENV"
+  
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: "Release for ${{ env.NEW_TAG }}"
+          draft: false
+          prerelease: false
+
+  deploy:
+    needs: [tag]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          curl -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
+
+
+
+

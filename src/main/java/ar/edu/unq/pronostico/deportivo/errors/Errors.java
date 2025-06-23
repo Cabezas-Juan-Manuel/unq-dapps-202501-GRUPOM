@@ -1,9 +1,9 @@
-package ar.edu.unq.pronostico.deportivo.service.errors;
+package ar.edu.unq.pronostico.deportivo.errors;
 
 import lombok.Getter;
 
 @Getter
-public enum UserErrors {
+public enum Errors {
     ALREADY_REGISTERED("Someone else has chosen that name"),
     USER_NOT_FOUND("User not found"),
     INVALID_PASSWORD_OR_USERNAME("password or user name invalid"),
@@ -15,7 +15,7 @@ public enum UserErrors {
 
     private final String message;
 
-    UserErrors(String message) {
+    Errors(String message) {
         this.message = message;
     }
 

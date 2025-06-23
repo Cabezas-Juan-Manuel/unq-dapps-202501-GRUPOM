@@ -5,10 +5,8 @@ import java.util.Optional;
 import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.model.User;
 import ar.edu.unq.pronostico.deportivo.repositories.IActivityRepository;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
-import jakarta.validation.constraints.Null;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 import org.springframework.data.domain.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,7 +29,7 @@ public class UserService {
     public User createUser(String name, String password){
         User user = userDao.getByName(name);
         if (user != null){
-            throw new IllegalArgumentException(UserErrors.ALREADY_REGISTERED.getMessage());
+            throw new IllegalArgumentException(Errors.ALREADY_REGISTERED.getMessage());
         }
         return this.generateNewUser(name, password);
     }
@@ -47,7 +45,7 @@ public class UserService {
         User user = Optional
                 .ofNullable(this.userDao.getByName(name))
                 .orElseThrow(() -> new NullPointerException(
-                        UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage()
+                        Errors.INVALID_PASSWORD_OR_USERNAME.getMessage()
                 ));
         validatePassWord(user.getPassword(), password);
         return userDao.getByName(name);
@@ -56,7 +54,7 @@ public class UserService {
     private void validatePassWord(String encodedPassword, String rawPassword) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if(!encoder.matches(rawPassword, encodedPassword)){
-            throw new IllegalArgumentException(UserErrors.INVALID_PASSWORD_OR_USERNAME.getMessage());
+            throw new IllegalArgumentException(Errors.INVALID_PASSWORD_OR_USERNAME.getMessage());
         }
     }
 
@@ -68,7 +66,7 @@ public class UserService {
         User user = Optional
                 .ofNullable(this.userDao.getByName(userName))
                 .orElseThrow(() -> new NullPointerException(
-                        UserErrors.USER_NOT_FOUND.getMessage()
+                        Errors.USER_NOT_FOUND.getMessage()
                 ));
         Pageable pageable = PageRequest.of(page, 10);
         return activityDao.getActivityByUser(user.getName(), pageable);

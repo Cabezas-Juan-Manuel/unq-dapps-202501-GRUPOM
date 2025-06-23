@@ -1,11 +1,10 @@
-package ar.edu.unq.pronostico.deportivo.webservice;
+package ar.edu.unq.pronostico.deportivo.utils;
 
 import ar.edu.unq.pronostico.deportivo.model.Activity;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.ActivityDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ActivityMapper {

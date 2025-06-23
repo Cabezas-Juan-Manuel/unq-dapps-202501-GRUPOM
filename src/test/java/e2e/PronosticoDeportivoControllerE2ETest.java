@@ -1,12 +1,13 @@
-package ar.edu.unq.pronostico.deportivo;
+package e2e;
 
+import ar.edu.unq.pronostico.deportivo.PronosticoDeportivoApplication;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
 import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
-import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Team;
+import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.TeamData;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.RegisterDto;
@@ -15,21 +16,20 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = PronosticoDeportivoApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PronosticoDeportivoControllerE2ETest {
 
@@ -44,10 +44,10 @@ class PronosticoDeportivoControllerE2ETest {
 
     private String token;
 
-    @MockBean // marca como que esta deprecado pero es la opcion mas rapida
+    @MockitoBean
     private WhoScoredService whoScoredService;
 
-    @MockBean
+    @MockitoBean
     private FootballDataService footballDataService;
 
     @Mock
@@ -109,8 +109,8 @@ class PronosticoDeportivoControllerE2ETest {
     void testGetFutureMatchesFromTeam() {
         String baseUrl = "http://localhost:" + port;
         String teamName = "bayern munich";
-        Team milan = new Team(3, "Milan", "Mln", "a", "a");
-        Team bayern = new Team(5, "bayern munich", "by", "b", "b");
+        TeamData milan = new TeamData(3, "Milan", "Mln", "a", "a");
+        TeamData bayern = new TeamData(5, "bayern munich", "by", "b", "b");
         List<Match> mockMatches = List.of(
                 new Match(1, "3/4/05", "not played", 3, milan, bayern),
                 new Match(1, "25/7/25", "not played", 25, bayern, milan)

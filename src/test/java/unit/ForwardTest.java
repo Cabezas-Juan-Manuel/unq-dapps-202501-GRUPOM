@@ -1,7 +1,7 @@
-package unitTest;
+package unit;
 
 import ar.edu.unq.pronostico.deportivo.model.player.Forward;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ class ForwardTest {
         Map<String, String> playerStatistics = new HashMap<>();
         Double blocks = 3.5;
         Double fouls = 3.5;
-        String expectedErrorMessage = UserErrors.MISSING_STATISTICS_ERROR.getMessage();
+        String expectedErrorMessage = Errors.MISSING_STATISTICS_ERROR.getMessage();
         playerStatistics.put("Blocks", blocks.toString());
         playerStatistics.put("Fouls", fouls.toString());
         Forward forward = new Forward("El diegote", "10", "Napoli", "Argentino", playerStatistics);
@@ -39,7 +39,7 @@ class ForwardTest {
     @Test
     void testForwardCantCalculatePerformanceIfHeHasNotStatistics(){
         Map<String, String> playerStatistics = null;
-        String expectedErrorMessage = UserErrors.MISSING_STATISTICS_ERROR.getMessage();
+        String expectedErrorMessage = Errors.MISSING_STATISTICS_ERROR.getMessage();
         Forward forward = new Forward("El diegote", "10", "Napoli", "Argentino", playerStatistics);
         RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> forward.calculatePerformance());
         assertEquals(expectedErrorMessage, exceptionThrown.getMessage());

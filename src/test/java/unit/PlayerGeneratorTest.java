@@ -1,9 +1,9 @@
-package unitTest;
+package unit;
 
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerGenerator;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;
 import ar.edu.unq.pronostico.deportivo.model.player.Player;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +42,7 @@ class PlayerGeneratorTest {
         positions.put("NotPosition:", "SomeValue");
         positionsAndInfo.add(positions);
 
-        String expectedError = UserErrors.THERES_NO_POSITION_AVAILABLE_FOR_THIS_PLAYER.getMessage();
+        String expectedError = Errors.THERES_NO_POSITION_AVAILABLE_FOR_THIS_PLAYER.getMessage();
         IllegalArgumentException exceptionThrown = assertThrows(IllegalArgumentException.class,
                 () -> generator.generatePlayerWithData(positionsAndInfo));
 
@@ -59,7 +59,7 @@ class PlayerGeneratorTest {
         positions.put("Positions:", "WrongPosition");
         positionsAndInfo.add(positions);
 
-        String expectedError = UserErrors.POSITION_DOES_NOT_MATCH.getMessage();
+        String expectedError = Errors.POSITION_DOES_NOT_MATCH.getMessage();
         NullPointerException exceptionThrown = assertThrows(NullPointerException.class,
                 () -> generator.generatePlayerWithData(positionsAndInfo));
 

@@ -1,4 +1,4 @@
-package integrationTest;
+package e2e;
 
 import ar.edu.unq.pronostico.deportivo.PronosticoDeportivoApplication;
 import ar.edu.unq.pronostico.deportivo.repositories.IUserRepository;

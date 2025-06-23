@@ -1,8 +1,8 @@
-package unitTest;
+package unit;
 
 import ar.edu.unq.pronostico.deportivo.model.player.Player;
 import ar.edu.unq.pronostico.deportivo.model.playerFactory.PlayerFactory;
-import ar.edu.unq.pronostico.deportivo.service.errors.UserErrors;
+import ar.edu.unq.pronostico.deportivo.errors.Errors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +54,7 @@ class PlayerFactoryTest {
         Exception exception = assertThrows(RuntimeException.class, () -> {
             playerFactory.generatePlayer(invalidPlayerInfo);
         });
-        assertEquals(UserErrors.PLAYER_INFO_IS_WRONG_OR_NULL.getMessage(), exception.getMessage());
+        assertEquals(Errors.PLAYER_INFO_IS_WRONG_OR_NULL.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -63,7 +63,7 @@ class PlayerFactoryTest {
         Exception exception = assertThrows(RuntimeException.class, () -> {
             playerFactory.generatePlayer(playerInfoWithoutStats);
         });
-        assertEquals(UserErrors.PLAYER_STATISTICS_ARE_EMPTY.getMessage(), exception.getMessage());
+        assertEquals(Errors.PLAYER_STATISTICS_ARE_EMPTY.getMessage(), exception.getMessage());
     }
 }
 

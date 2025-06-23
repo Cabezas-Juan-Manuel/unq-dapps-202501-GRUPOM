@@ -6,10 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.domain.JavaClasses;
 
 class ArchitectureTest {
     @Test
     void testLayerChecks(){
+        JavaClasses importedClasses = new ClassFileImporter()
+                .importPackages("ar.edu.unq.pronostico.deportivo");
+
         layeredArchitecture()
                 .consideringAllDependencies()
                 .layer("Controller").definedBy("ar.edu.unq.pronostico.deportivo.webservice")
@@ -20,7 +25,9 @@ class ArchitectureTest {
                 .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
                 .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller")
                 .whereLayer("Persistence").mayOnlyBeAccessedByLayers("Service")
-                .whereLayer("Model").mayOnlyBeAccessedByLayers("Service");
+                .whereLayer("Model").mayOnlyBeAccessedByLayers("Service")
+
+                .check(importedClasses);
     }
 
     @Test

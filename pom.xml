@@ -160,14 +160,10 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<!-- La versión es gestionada por Spring Boot Parent, pero si necesitas una específica, añádela -->
-			<!-- <version>2.17.1</version> -->
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<!-- La versión es gestionada por Spring Boot Parent, pero si necesitas una específica, añádela -->
-			<!-- <version>42.7.3</version> -->
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>

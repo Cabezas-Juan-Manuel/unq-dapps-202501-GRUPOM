@@ -329,7 +329,7 @@ public class WhoScoredService {
         return Jsoup.parse(driver.getPageSource());
     }
 
-    public List<Map<String, String>> getStatisticsForTeam(String team) {
+    public List<Map<String, String>> getStatisticsForTeam() {
         WebDriver driver = configureWebDriver();
         String topTeamStatsDefensive = "top-team-stats-defensive";
         String topTeamStatsOffensive = "top-team-stats-offensive";
@@ -341,20 +341,5 @@ public class WhoScoredService {
 
         return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, new ArrayList<>());
 
-    }
-
-    private Document goToPageOfSearchedItem(String itemToSearch, WebDriver driver, String tableName) {
-        driver.get(searchBaseURL + itemToSearch);
-        String pageSource = driver.getPageSource();
-        if (pageSource == null) {
-            throw new IllegalStateException("No se pudo obtener el pageSource.");
-        }
-        Document document = Jsoup.parse(pageSource);
-        Element table = getTableByTitle(document, tableName);
-        Element linkElement = table.selectFirst(firstLink);
-        String relativeURL = linkElement.attr("href");
-        String fullURL = baseURL + relativeURL;
-        driver.get(fullURL);
-        return Jsoup.parse(Objects.requireNonNull(driver.getPageSource(), "El pageSource es null"));
     }
 }

@@ -16,7 +16,7 @@ public class FutureMatchTeamRequestsActuatorEndpoint {
 
     private static final String METRIC_NAME = "pronostico.deportivo.future.matches.requests";
     private final MeterRegistry meterRegistry;
-    private static final String teamLabel = "team";
+    private static final String team_label = "team";
     public FutureMatchTeamRequestsActuatorEndpoint(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
     }
@@ -27,9 +27,9 @@ public class FutureMatchTeamRequestsActuatorEndpoint {
         Map<String, Double> teamCounts = meterRegistry.find(METRIC_NAME)
                 .counters()
                 .stream()
-                .filter(counter -> Objects.nonNull(counter.getId().getTag(teamLabel)))
+                .filter(counter -> Objects.nonNull(counter.getId().getTag(team_label)))
                 .collect(Collectors.groupingBy(
-                        counter -> counter.getId().getTag(teamLabel),
+                        counter -> counter.getId().getTag(team_label),
                         Collectors.summingDouble(Counter::count)
                 ));
 

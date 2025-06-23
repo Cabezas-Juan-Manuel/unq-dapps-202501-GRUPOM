@@ -26,6 +26,9 @@ public class WhoScoredService {
     String teamStatsIdentifier = "team-stats";
     String playerStatsIdentifier = "player-stats";
     String playerLatestMatchesIdentifier = "player-latest-matches";
+    String baseURL = "https://whoscored.com";
+    String searchBaseURL = "https://whoscored.com/search/?t=";
+    String firstLink = "a[href]";
 
 
     private WebDriver configureWebDriver() {
@@ -159,8 +162,7 @@ public class WhoScoredService {
         WebDriver driver = configureWebDriver();
 
         try {
-            String baseURL = "https://whoscored.com";
-            driver.get(baseURL + "/search/?t=" + text);
+            driver.get(searchBaseURL + text);
 
             String pageSource = driver.getPageSource();
 
@@ -178,7 +180,7 @@ public class WhoScoredService {
                 return jsonOutput;
             }
 
-            Element linkElement = table.selectFirst("a[href]");
+            Element linkElement = table.selectFirst(firstLink);
             if (linkElement == null) {
                 AppLogger.error(serviceClass, serviceMethod, "No link found in results table");
                 return jsonOutput;
@@ -316,12 +318,11 @@ public class WhoScoredService {
     }
 
     private Document goToPlayersPage(String player, WebDriver driver) {
-        String baseURL = "https://whoscored.com";
-        driver.get(baseURL + "/search/?t=" + player);
+        driver.get(searchBaseURL + player);
         String pageSource = driver.getPageSource();
         Document document = Jsoup.parse(pageSource);
         Element table = getTableByTitle(document, "Players:");
-        Element linkElement = table.selectFirst("a[href]");
+        Element linkElement = table.selectFirst(firstLink);
         String relativeURL = linkElement.attr("href");
         String fullURL = baseURL + relativeURL;
         driver.get(fullURL);
@@ -335,10 +336,6 @@ public class WhoScoredService {
         String cssToDefensivePath = "#top-team-stats-options > li:nth-child(2) > a:nth-child(1)";
         String cssToOffensivePath = "#top-team-stats-options > li:nth-child(3) > a:nth-child(1)";
 
-
-        Document teamPage = goToPageOfSearchedItem(team, driver, "Teams:");;
-
-
         Element defensiveStatsTable = getDinamicTable(driver, cssToDefensivePath, topTeamStatsDefensive);
         Element offensiveStatsTable = getDinamicTable(driver, cssToOffensivePath, topTeamStatsOffensive);
 
@@ -347,15 +344,17 @@ public class WhoScoredService {
     }
 
     private Document goToPageOfSearchedItem(String itemToSearch, WebDriver driver, String tableName) {
-        String baseURL = "https://whoscored.com";
-        driver.get(baseURL + "/search/?t=" + itemToSearch);
+        driver.get(searchBaseURL + itemToSearch);
         String pageSource = driver.getPageSource();
+        if (pageSource == null) {
+            throw new IllegalStateException("No se pudo obtener el pageSource.");
+        }
         Document document = Jsoup.parse(pageSource);
         Element table = getTableByTitle(document, tableName);
-        Element linkElement = table.selectFirst("a[href]");
+        Element linkElement = table.selectFirst(firstLink);
         String relativeURL = linkElement.attr("href");
         String fullURL = baseURL + relativeURL;
         driver.get(fullURL);
-        return Jsoup.parse(driver.getPageSource());
+        return Jsoup.parse(Objects.requireNonNull(driver.getPageSource(), "El pageSource es null"));
     }
 }

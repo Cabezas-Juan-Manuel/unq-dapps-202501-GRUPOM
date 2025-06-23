@@ -74,8 +74,7 @@ public class UserService {
 
     public void registerActivity(String user, String url, String method, String queryParams, LocalDateTime timeStamp) {
         User registereduser = userDao.getByName(user);
-        Activity newActivity = new Activity(registereduser, url, method, queryParams, timeStamp);
-        activityDao.save(newActivity);
+        Activity newActivity = new Activity(user, url, method, queryParams, timeStamp);
         registereduser.addActivity(newActivity);
         userDao.save(registereduser);
     }

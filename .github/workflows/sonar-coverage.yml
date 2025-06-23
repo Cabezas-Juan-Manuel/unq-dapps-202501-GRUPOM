@@ -33,7 +33,7 @@ jobs:
           FD_TOKEN: ${{ secrets.FD_TOKEN }}
           OP_TOKEN: ${{ secrets.OP_TOKEN }}
           PROFILE: ${{ secrets.PROFILE }}
-        run: mvn clean verify jacoco:report
+        run: mvn clean verify
         
       - name: SonarCloud Scan
         run: |

@@ -16,7 +16,7 @@ public class FutureMatchTeamRequestsActuatorEndpoint {
 
     private static final String METRIC_NAME = "pronostico.deportivo.future.matches.requests";
     private final MeterRegistry meterRegistry;
-    private final String teamLabel = "team";
+    private static final String teamLabel = "team";
     public FutureMatchTeamRequestsActuatorEndpoint(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
     }

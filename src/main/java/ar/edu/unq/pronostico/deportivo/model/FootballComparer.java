@@ -10,6 +10,8 @@ import java.util.Map;
 @Component
 public class FootballComparer {
 
+    private FootballComparer() { }
+
     public static List<Map<String, String>> compareTeams(Team teamOne, Team teamTwo) {
         List<Map<String, String>> comparisonTable = new ArrayList<>();
 

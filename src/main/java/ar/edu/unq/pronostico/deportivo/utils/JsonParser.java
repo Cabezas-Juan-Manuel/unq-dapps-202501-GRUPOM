@@ -12,7 +12,7 @@ public class JsonParser {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static String jsonParserString = "JsonParser";
+    private static final String jsonParserString = "JsonParser";
 
     private JsonParser(){
     }
@@ -41,24 +41,5 @@ public class JsonParser {
         }
 
         return playerList;
-    }
-
-    public static PlayerForTeam fromJsonToPlayer(String jsonString) {
-        PlayerForTeam player = new PlayerForTeam();
-        try {
-            JsonNode rootNode = objectMapper.readTree(jsonString);
-            for (JsonNode node : rootNode) {
-                player.setName(node.get("Player").asText());
-                player.setMatchesPlayed(node.get("Apps").asInt());
-                player.setGoals(node.get("Goals").asInt());
-                player.setAssist(node.get("Assists").asInt());
-                player.setRating(node.get("Rating").asDouble());
-               return player;
-            }
-
-        } catch (JsonProcessingException e) {
-            AppLogger.error(jsonParserString, e.getMessage(), "Error to process json");
-        }
-        return player;
     }
 }

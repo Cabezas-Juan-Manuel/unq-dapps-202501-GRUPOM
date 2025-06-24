@@ -15,8 +15,10 @@ import ar.edu.unq.pronostico.deportivo.service.integration.WhoScoredService;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.Match;
 import ar.edu.unq.pronostico.deportivo.service.integration.dataObject.TeamData;
 import ar.edu.unq.pronostico.deportivo.utils.ApiResponse;
+import ar.edu.unq.pronostico.deportivo.utils.FutureMatchTeamRequestsActuatorEndpoint;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.PlayerWithPerformanceScoreDto;
 import ar.edu.unq.pronostico.deportivo.webservice.dtos.RegisterDto;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,12 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Meter.Id;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -325,5 +333,49 @@ class PronosticoDeportivoControllerE2ETest {
         assertNotNull(result);
         assertEquals(teamName, result.getName());
         assertEquals(stats, resultStats); // suponiendo que el getter se llama así
+    }
+
+    @Test
+    void testGetTeamRequestStats_ShouldReturnGroupedStats() {
+        // Arrange
+        MeterRegistry meterRegistry = mock(MeterRegistry.class);
+        FutureMatchTeamRequestsActuatorEndpoint endpoint = new FutureMatchTeamRequestsActuatorEndpoint(meterRegistry);
+
+        // Counters y sus tags
+        Counter counter1 = mock(Counter.class);
+        Counter counter2 = mock(Counter.class);
+        Counter counterWithoutTeam = mock(Counter.class);
+
+        Meter.Id id1 = mock(Meter.Id.class);
+        Meter.Id id2 = mock(Meter.Id.class);
+        Meter.Id idNull = mock(Meter.Id.class);
+
+        when(counter1.getId()).thenReturn(id1);
+        when(counter2.getId()).thenReturn(id2);
+        when(counterWithoutTeam.getId()).thenReturn(idNull);
+
+        when(id1.getTag("team")).thenReturn("Argentina");
+        when(id2.getTag("team")).thenReturn("Brasil");
+        when(idNull.getTag("team")).thenReturn(null); // se ignora
+
+        when(counter1.count()).thenReturn(3.0);
+        when(counter2.count()).thenReturn(2.0);
+        when(counterWithoutTeam.count()).thenReturn(5.0);
+
+        // ✅ Mock del objeto intermedio Search
+        io.micrometer.core.instrument.search.Search search = mock(io.micrometer.core.instrument.search.Search.class);
+        when(meterRegistry.find("pronostico.deportivo.future.matches.requests")).thenReturn(search);
+        when(search.counters()).thenReturn(List.of(counter1, counter2, counterWithoutTeam));
+
+        // Act
+        Map<String, Object> result = endpoint.getTeamRequestStats();
+
+        // Assert
+        assertEquals("Count of teams queried for future matches", result.get("description"));
+
+        Map<String, Double> teamCounts = (Map<String, Double>) result.get("team_request_counts");
+        assertEquals(2, teamCounts.size());
+        assertEquals(3.0, teamCounts.get("Argentina"));
+        assertEquals(2.0, teamCounts.get("Brasil"));
     }
 }

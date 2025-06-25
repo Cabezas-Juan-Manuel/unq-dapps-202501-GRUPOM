@@ -2,6 +2,7 @@ package e2e;
 
 import ar.edu.unq.pronostico.deportivo.PronosticoDeportivoApplication;
 import ar.edu.unq.pronostico.deportivo.model.PlayerForTeam;
+import ar.edu.unq.pronostico.deportivo.service.TeamService;
 import ar.edu.unq.pronostico.deportivo.service.UserService;
 import ar.edu.unq.pronostico.deportivo.service.integration.ChatService;
 import ar.edu.unq.pronostico.deportivo.service.integration.FootballDataService;
@@ -25,8 +26,8 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = PronosticoDeportivoApplication.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -52,7 +53,6 @@ class PronosticoDeportivoControllerE2ETest {
 
     @Mock
     private ChatService chatService;
-
 
     @BeforeAll
     void setUp() {
@@ -196,5 +196,79 @@ class PronosticoDeportivoControllerE2ETest {
         );
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testGetPlayersFromTeamNotFound() {
+        String baseUrl = "http://localhost:" + port;
+        String teamName = "bayern munich";
+
+        Mockito.when(whoScoredService.getPlayersFromTeam(teamName)).thenReturn(List.of());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token.replace("Bearer ", ""));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<ApiResponse<List<PlayerForTeam>>> response = restTemplate.exchange(
+                baseUrl + "/pronosticoDeportivo/team/" + teamName + "/players",
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Team players not found", response.getBody().getMessage());
+        assertNull(response.getBody().getData());
+    }
+
+    @Test
+    void testGetPlayersFromTeam_ReturnsBadRequestOnIllegalArgument() {
+        String baseUrl = "http://localhost:" + port;
+        String teamName = "invalidTeam";
+
+        Mockito.when(whoScoredService.getPlayersFromTeam(teamName))
+                .thenThrow(new IllegalArgumentException("Invalid team name"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token.replace("Bearer ", ""));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<ApiResponse<List<PlayerForTeam>>> response = restTemplate.exchange(
+                baseUrl + "/pronosticoDeportivo/team/" + teamName + "/players",
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Bad request", response.getBody().getMessage());
+        assertNull(response.getBody().getData());
+    }
+
+    @Test
+    void testGetPlayersFromTeam_ReturnsInternalServerErrorOnUnexpectedException() {
+        String baseUrl = "http://localhost:" + port;
+        String teamName = "bayern munich";
+
+        Mockito.when(whoScoredService.getPlayersFromTeam(teamName))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token.replace("Bearer ", ""));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<ApiResponse<List<PlayerForTeam>>> response = restTemplate.exchange(
+                baseUrl + "/pronosticoDeportivo/team/" + teamName + "/players",
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Internal server error", response.getBody().getMessage());
+        assertNull(response.getBody().getData());
     }
 }

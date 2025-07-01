@@ -32,7 +32,7 @@ jobs:
           FD_URL: ${{ secrets.FD_URL }}
           FD_TOKEN: ${{ secrets.FD_TOKEN }}
           OP_TOKEN: ${{ secrets.OP_TOKEN }}
-        run: mvn clean verify
+        run: mvn clean verify -Punit,e2e
         
       - name: SonarCloud Scan
         run: |

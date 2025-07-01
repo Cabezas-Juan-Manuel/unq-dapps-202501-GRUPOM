@@ -229,6 +229,16 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- Se seleccionan solo los tests del subdirectorio según la propiedad -->
+					<includes>
+						<include>**/${test.subfolder}/**/*.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.10</version>
@@ -237,6 +247,7 @@
 						<exclude>**/service/**</exclude>
 						<exclude>**/utils/**</exclude>
 						<exclude>**/webservice/dtos/**</exclude>
+						<exclude>**/aspects/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>

@@ -43,4 +43,4 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-            -Dsonar.coverage.exclusions=**/service/**,**/utils/**,**/webservice/dtos/**,**/model/Activity.java
+            -Dsonar.coverage.exclusions=**/service/**,**/utils/**,**/webservice/dtos/**,**/model/Activity.java,**/aspects/**

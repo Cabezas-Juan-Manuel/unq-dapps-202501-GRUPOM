@@ -336,7 +336,7 @@ public class WhoScoredService {
         String cssToDefensivePath = "#top-team-stats-options > li:nth-child(2) > a:nth-child(1)";
         String cssToOffensivePath = "#top-team-stats-options > li:nth-child(3) > a:nth-child(1)";
 
-        Document teamPage = goToPageOfSearchedItem(team, driver, "Teams:");;
+        goToPageOfSearchedItem(team, driver, "Teams:");;
 
         Element defensiveStatsTable = getDinamicTable(driver, cssToDefensivePath, topTeamStatsDefensive);
         Element offensiveStatsTable = getDinamicTable(driver, cssToOffensivePath, topTeamStatsOffensive);

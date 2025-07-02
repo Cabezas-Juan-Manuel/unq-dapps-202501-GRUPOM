@@ -41,7 +41,7 @@ jobs:
         run: mvn -B test
         
   trigger-tag-and-deploy-workflow:
-    if: github.event_name == 'push'  && github.ref_name == 'feature/main'
+    if: github.event_name == 'push'  && github.ref_name == 'main'
     runs-on: ubuntu-latest
     needs: [test]
     permissions: write-all

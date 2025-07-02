@@ -147,7 +147,7 @@ public class PronosticoDeportivoController {
     }
 
     private Team generateTeam(String teamName){
-        List<Map<String, String>> teamData = whoScoredService.getStatisticsForTeam();
+        List<Map<String, String>> teamData = whoScoredService.getStatisticsForTeam(teamName);
         return teamService.createTeamFromData(teamName, teamData);
     }
 }

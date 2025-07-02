@@ -29,6 +29,9 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags
 
+      - name: Mostrar mensaje de commit
+        run: echo "Mensaje de commit recibido $COMMIT_MESSAGE"
+        
       - name: Calculate and Push Next Checkpoint Tag
         if: contains(env.COMMIT_MESSAGE, 'newTag')
         run: |

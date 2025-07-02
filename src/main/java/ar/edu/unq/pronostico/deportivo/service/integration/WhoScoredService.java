@@ -329,17 +329,39 @@ public class WhoScoredService {
         return Jsoup.parse(driver.getPageSource());
     }
 
-    public List<Map<String, String>> getStatisticsForTeam() {
+    public List<Map<String, String>> getStatisticsForTeam(String team) {
         WebDriver driver = configureWebDriver();
         String topTeamStatsDefensive = "top-team-stats-defensive";
         String topTeamStatsOffensive = "top-team-stats-offensive";
         String cssToDefensivePath = "#top-team-stats-options > li:nth-child(2) > a:nth-child(1)";
         String cssToOffensivePath = "#top-team-stats-options > li:nth-child(3) > a:nth-child(1)";
 
+        goToPageOfSearchedItem(team, driver, "Teams:");
+
         Element defensiveStatsTable = getDinamicTable(driver, cssToDefensivePath, topTeamStatsDefensive);
         Element offensiveStatsTable = getDinamicTable(driver, cssToOffensivePath, topTeamStatsOffensive);
 
         return transformTablesToMap(defensiveStatsTable, offensiveStatsTable, new ArrayList<>());
 
+    }
+
+    private Document goToPageOfSearchedItem(String itemToSearch, WebDriver driver, String tableName) {
+        String baseWhoScoredURL = "https://whoscored.com";
+        driver.get(baseWhoScoredURL + "/search/?t=" + itemToSearch);
+        String pageSource = driver.getPageSource();
+        if (pageSource == null) {
+            throw new IllegalStateException("Failed to retrieve page source");
+        }
+        Document document = Jsoup.parse(pageSource);
+        Element table = getTableByTitle(document, tableName);
+        Element linkElement = table.selectFirst("a[href]");
+        String relativeURL = linkElement.attr("href");
+        String fullURL = baseWhoScoredURL + relativeURL;
+        driver.get(fullURL);
+        String finalPage = driver.getPageSource();
+        if (finalPage == null) {
+            throw new IllegalStateException("Failed to retrieve final page");
+        }
+        return Jsoup.parse(driver.getPageSource());
     }
 }

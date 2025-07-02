@@ -11,27 +11,6 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.domain.JavaClasses;
 
 class ArchitectureTest {
-    @Disabled
-    @Test
-    void testLayerChecks(){
-        JavaClasses importedClasses = new ClassFileImporter()
-                .importPackages("ar.edu.unq.pronostico.deportivo");
-
-        layeredArchitecture()
-                .consideringAllDependencies()
-                .layer("Controller").definedBy("ar.edu.unq.pronostico.deportivo.webservice")
-                .layer("Service").definedBy("ar.edu.unq.pronostico.deportivo.service")
-                .layer("Persistence").definedBy("ar.edu.unq.pronostico.deportivo.repositories")
-                .layer("Model").definedBy("ar.edu.unq.pronostico.deportivo.model")
-
-                .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
-                .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller")
-                .whereLayer("Persistence").mayOnlyBeAccessedByLayers("Service")
-                .whereLayer("Model").mayOnlyBeAccessedByLayers("Service")
-
-                .check(importedClasses);
-    }
-
     @Test
     void testControllersAreTransactional(){
         classes().that().areAssignableTo(RestController.class)

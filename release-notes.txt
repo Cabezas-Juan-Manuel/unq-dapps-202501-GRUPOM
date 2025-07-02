@@ -1,0 +1,12 @@
+---------------------------------------------------------------------
+TAG 3
+---------------------------------------------------------------------
+NEW FEATURES
+* Endpoint de métricas avanzadas
+* Endpoint de comparación de equipos
+* Integracion con neo4j
+* Integracion con actuator
+
+NOTES (ej: funcionalidad que falta, alguna consideración especial):
+* Para generar el nuevo tag se debe escribir newTag como mensaje del commit,
+  sino generara otra version del mismo tag
